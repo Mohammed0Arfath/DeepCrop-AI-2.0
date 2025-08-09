@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEADHEART_YOLO_PATH=models/yolov_deadheart.pt
+      - DEADHEART_TABNET_PATH=models/tabnet_deadheart.joblib
+      - TILLER_YOLO_PATH=models/yolov_tiller.pt
+      - TILLER_TABNET_PATH=models/tabnet_tiller.joblib
+      - IMAGE_WEIGHT=0.6
+      - TABNET_WEIGHT=0.4
+      - PREDICTION_THRESHOLD=0.5
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  models:
+    driver: local
