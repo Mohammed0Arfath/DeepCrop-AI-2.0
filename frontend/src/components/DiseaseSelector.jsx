@@ -1,7 +1,7 @@
 /**
  * MIT License
  * 
- * Disease selector component for choosing between dead heart and tiller diseases
+ * Pest selector component for choosing between dead heart and tiller pests
  */
 
 import React from 'react';
@@ -13,13 +13,13 @@ const DiseaseSelector = ({ selectedDisease, onDiseaseSelect }) => {
     {
       id: 'deadheart',
       name: t('diseases.deadheart'),
-      description: 'A disease that affects the growing point of sugarcane, causing the central shoot to die.',
+      description: 'A pest that damages the growing point of sugarcane, leading to the central shoot (dead heart) symptom.',
       icon: '🐛'
     },
     {
       id: 'tiller',
       name: t('diseases.tiller'),
-      description: 'A condition affecting the tillering process in sugarcane plants.',
+      description: 'A pest pressure affecting tillering in sugarcane, causing stunted or abnormal side shoots.',
       icon: '🎋'
     }
   ];

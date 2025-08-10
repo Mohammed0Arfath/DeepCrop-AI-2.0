@@ -1,17 +1,17 @@
 {
   "app": {
-    "title": "Sugarcane Disease Detection",
-    "subtitle": "AI-powered detection for dead heart and tiller diseases",
-    "footer": "© 2024 Sugarcane Disease Detection System"
+    "title": "Sugarcane Pest Detection",
+    "subtitle": "AI-powered detection for dead heart and tiller pests",
+    "footer": "© 2024 Sugarcane Pest Detection System"
   },
   "diseases": {
     "deadheart": "Dead Heart",
     "tiller": "Tiller",
-    "select": "Select Disease Type",
-    "selectDescription": "Choose the type of disease you want to diagnose"
+    "select": "Select Pest Type",
+    "selectDescription": "Choose the type of pest you want to diagnose"
   },
   "buttons": {
-    "submit": "Analyze Disease",
+    "submit": "Analyze Pest",
     "reset": "Reset",
     "previous": "Previous",
     "next": "Next",
@@ -182,7 +182,7 @@
     "generic": "An error occurred. Please try again.",
     "imageRequired": "Please upload an image",
     "questionnaireRequired": "Please complete the questionnaire",
-    "diseaseRequired": "Please select a disease type",
+    "diseaseRequired": "Please select a pest type",
     "uploadFailed": "Image upload failed",
     "predictionFailed": "Prediction failed. Please try again.",
     "networkError": "Network error. Please check your connection."
@@ -194,13 +194,13 @@
     "please_wait": "Please wait..."
   },
   "weather": {
-    "title": "Weather & Disease Risk",
-    "subtitle": "Current conditions and disease risk assessment",
+    "title": "Weather & Pest Risk",
+    "subtitle": "Current conditions and pest risk assessment",
     "loading": "Fetching weather data...",
     "retry": "Retry",
     "selectLocation": "Select Location",
     "locationDesc": "Choose your location to get accurate weather data",
-    "selectLocationDesc": "Choose your location to get weather-based disease risk assessment",
+    "selectLocationDesc": "Choose your location to get weather-based pest risk assessment",
     "useCurrentLocation": "Use Current Location",
     "gettingLocation": "Getting location...",
     "selectManually": "Select Manually",
@@ -216,7 +216,7 @@
     "rainfall": "Rainfall (3h)",
     "pressure": "Pressure",
     "lastUpdated": "Last updated",
-    "diseaseRisk": "Disease Risk Assessment",
+    "diseaseRisk": "Pest Risk Assessment",
     "overallRisk": "Overall Risk",
     "riskFactors": "Risk Factors",
     "recommendations": "Recommendations",

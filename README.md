@@ -1,20 +1,54 @@
-# 🌾 Sugarcane Disease Detection System
+# 🌾 Sugarcane Pest Detection System
 
-A full-stack AI-powered application for detecting sugarcane diseases using computer vision and machine learning. The system combines YOLOv8 image detection with TabNet questionnaire analysis to provide accurate disease predictions for **Dead Heart** and **Tiller** diseases.
+A full-stack AI-powered application for detecting sugarcane pests using computer vision and machine learning. The system combines YOLOv8 image detection with TabNet questionnaire analysis to provide accurate pest predictions for **Dead Heart** and **Tiller** pests.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
 ![React](https://img.shields.io/badge/React-18+-blue.svg)
 
+## 📜 Project Description
+
+Sugarcane Pest Detection is an end-to-end, production-ready system that helps farmers and agronomists identify two critical sugarcane pests—Dead Heart and Tiller—early and accurately. The platform combines:
+- Image intelligence with YOLOv8 (segmentation for Dead Heart, detection for Tiller) to localize symptoms on plant photos and render visual overlays.
+- Structured plant assessment via a 15-question symptom questionnaire processed by a TabNet model for each pest.
+- Weighted fusion (default 0.6 image, 0.4 questionnaire) to compute a final pest score and label, configurable through environment variables.
+- Weather-based risk assessment that uses your location (GPS/manual state/city) to estimate current pest risk levels and provide preventive recommendations.
+
+Why it matters
+- Early detection and timely advice reduce crop loss and improve yield/ROI for farmers.
+- Visual explanations (masks/boxes) make results trustworthy and actionable.
+- Offline-friendly design choices (simple JSON questionnaire, small APIs) support constrained connectivity environments.
+
+Who it’s for
+- Farmers, agri-extension workers, co-ops, and research teams who want a simple and explainable field tool.
+- Developers and students seeking a reference-quality, beginner-friendly full-stack AI project.
+
+How it works (high level)
+1) Upload a clear plant photo and answer a short pest-specific questionnaire.
+2) The FastAPI backend:
+   - Runs YOLOv8 on the image and extracts masks/boxes and confidence scores.
+   - Loads the pest-specific TabNet model (via joblib) and predicts probability from features derived from answers.
+   - Fuses both signals into a final score and label; returns the overlay image (base64), structured detections, and all scores.
+3) The React frontend:
+   - Renders the overlay, scores, detections table, and localized UI (English/Hindi/Tamil/Telugu).
+   - Provides a Weather & Pest Risk section with location-based guidance.
+4) Results are displayed with clear visuals and recommendations.
+
+Built by Team Deepcrop during the Agrithon conducted at VIT, the solution emphasizes:
+- Beginner-friendly, well-commented code.
+- Configurability (model paths, weights, thresholds).
+- Robustness (fallback logic, clear error messages, health checks).
+- Deployability (Docker, docker-compose).
+
 ## 🚀 Features
 
-- **Dual Disease Detection**: Supports both Dead Heart (segmentation) and Tiller (detection) diseases
+- **Dual Pest Detection**: Supports both Dead Heart (segmentation) and Tiller (detection) pests
 - **Multi-Modal AI**: Combines image analysis (YOLOv8) with questionnaire data (TabNet)
-- **Weather-Based Risk Assessment**: Real-time disease risk analysis based on weather conditions
+- **Weather-Based Risk Assessment**: Real-time pest risk analysis based on weather conditions
 - **Real-time Predictions**: Fast API responses with confidence scores
 - **Interactive Web Interface**: User-friendly React frontend with multi-language support
-- **Comprehensive Questionnaires**: 15 specific questions for each disease type
+- **Comprehensive Questionnaires**: 15 specific questions for each pest type
 - **Visual Results**: Overlay images showing detected areas with confidence scores
 - **Fusion Scoring**: Weighted combination of image and questionnaire predictions
 - **Location-Based Services**: GPS and manual location selection for Indian regions
@@ -228,12 +262,12 @@ curl -X POST "http://localhost:8000/predict/deadheart" \
 
 ## 📊 Model Information
 
-### Dead Heart Disease (Segmentation)
+### Dead Heart Pest (Segmentation)
 - **Questions**: 15 specific yes/no questions about symptoms
 - **Detection**: YOLOv8 segmentation with polygon masks
 - **Visualization**: Green overlay on affected areas
 
-### Tiller Disease (Detection)
+### Tiller Pest (Detection)
 - **Questions**: 15 specific yes/no questions about symptoms
 - **Detection**: YOLOv8 object detection with bounding boxes
 - **Visualization**: Red bounding boxes around affected areas
@@ -300,6 +334,12 @@ sugarcane-disease-detection/
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 👥 Team
+
+- Team Name: Deepcrop
+- Team Members: Hariharan S, Naresh R, Arfath, Yusuf
+- Built by Team Deepcrop during the Agrithon conducted at VIT.
+
 ## 🙏 Acknowledgments
 
 - **YOLOv8**: Ultralytics for the amazing object detection framework
@@ -317,7 +357,7 @@ If you encounter any issues or have questions:
 
 ## 🔮 Future Enhancements
 
-- [ ] Support for additional sugarcane diseases
+- [ ] Support for additional sugarcane pests
 - [ ] Mobile app development
 - [ ] Real-time video analysis
 - [ ] Advanced analytics dashboard

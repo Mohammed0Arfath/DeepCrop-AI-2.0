@@ -32,7 +32,7 @@ const Results = ({ results, diseaseType }) => {
             {isPositive ? '⚠️' : '✅'}
           </div>
           <div className="status-text">
-            <h3>{isPositive ? `${diseaseType.toUpperCase()} DETECTED` : 'NO DISEASE DETECTED'}</h3>
+            <h3>{isPositive ? `${diseaseType.toUpperCase()} DETECTED` : 'NO PEST DETECTED'}</h3>
             <p>Confidence: {(final_score * 100).toFixed(1)}% ({confidenceLevel})</p>
           </div>
         </div>
@@ -73,7 +73,7 @@ const Results = ({ results, diseaseType }) => {
           </div>
           
           <div className="score-item">
-            <div className="score-label">Plant Assessment</div>
+            <div className="score-label">Questionnaire Assessment</div>
             <div className="score-bar">
               <div 
                 className="score-fill tabnet-score" 
@@ -99,7 +99,7 @@ const Results = ({ results, diseaseType }) => {
           <div className="fusion-info">
             <p>
               <strong>Fusion Weights:</strong> Image {(metadata.fusion_weights.image * 100).toFixed(0)}%, 
-              Plant Assessment {(metadata.fusion_weights.tabnet * 100).toFixed(0)}%
+              Questionnaire {(metadata.fusion_weights.tabnet * 100).toFixed(0)}%
             </p>
             <p>
               <strong>Detection Threshold:</strong> {(metadata.threshold * 100).toFixed(0)}%
@@ -161,19 +161,19 @@ const Results = ({ results, diseaseType }) => {
           <div className="recommendation-list positive-recommendations">
             <div className="recommendation-item">
               <strong>🚨 Immediate Action Required</strong>
-              <p>Disease detected with {confidenceLevel} confidence. Consider consulting with an agricultural expert.</p>
+              <p>Pest detected with {confidenceLevel} confidence. Consider consulting with an agricultural expert.</p>
             </div>
             <div className="recommendation-item">
               <strong>🔍 Further Investigation</strong>
               <p>Examine neighboring plants and check for similar symptoms in the field.</p>
             </div>
             <div className="recommendation-item">
-              <strong>📋 Treatment Options</strong>
-              <p>Research appropriate treatment methods for {diseaseType} or consult agricultural extension services.</p>
+              <strong>📋 Pest Management Options</strong>
+              <p>Research appropriate pest management methods for {diseaseType} or consult agricultural extension services.</p>
             </div>
             <div className="recommendation-item">
               <strong>📊 Monitor Progress</strong>
-              <p>Take regular photos and assessments to track disease progression or treatment effectiveness.</p>
+              <p>Take regular photos and assessments to track pest pressure or treatment effectiveness.</p>
             </div>
           </div>
         ) : (
@@ -184,7 +184,7 @@ const Results = ({ results, diseaseType }) => {
             </div>
             <div className="recommendation-item">
               <strong>🛡️ Preventive Measures</strong>
-              <p>Maintain good field hygiene and proper irrigation to prevent future diseases.</p>
+              <p>Maintain good field hygiene and proper irrigation to prevent future pests.</p>
             </div>
             <div className="recommendation-item">
               <strong>📅 Regular Monitoring</strong>

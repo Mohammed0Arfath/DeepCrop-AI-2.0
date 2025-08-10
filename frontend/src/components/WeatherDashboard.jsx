@@ -100,8 +100,8 @@ const WeatherDashboard = () => {
   return (
     <div className="weather-dashboard">
       <div className="weather-header">
-        <h2>🌦️ {t('weather.title', 'Weather & Disease Risk')}</h2>
-        <p>{t('weather.subtitle', 'Current conditions and disease risk assessment')}</p>
+        <h2>🌦️ {t('weather.title', 'Weather & Pest Risk')}</h2>
+        <p>{t('weather.subtitle', 'Current conditions and pest risk assessment')}</p>
       </div>
 
       <LocationSelector onLocationChange={handleLocationChange} />
@@ -175,7 +175,7 @@ const WeatherDashboard = () => {
           {/* Disease Risk Assessment */}
           {riskData && (
             <div className="risk-assessment-section">
-              <h3>{t('weather.diseaseRisk', 'Disease Risk Assessment')}</h3>
+              <h3>{t('weather.diseaseRisk', 'Pest Risk Assessment')}</h3>
               
               {/* Overall Risk */}
               <div className="overall-risk">
@@ -249,7 +249,7 @@ const WeatherDashboard = () => {
         <div className="weather-placeholder">
           <div className="placeholder-icon">📍</div>
           <h3>{t('weather.selectLocation', 'Select Your Location')}</h3>
-          <p>{t('weather.selectLocationDesc', 'Choose your location to get weather-based disease risk assessment')}</p>
+          <p>{t('weather.selectLocationDesc', 'Choose your location to get weather-based pest risk assessment')}</p>
         </div>
       )}
     </div>
