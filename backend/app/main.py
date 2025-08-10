@@ -45,9 +45,9 @@ app.add_middleware(
 # Initialize disease predictors
 try:
     deadheart_predictor = DiseasePredictor(
-        disease_name="dead_heart",
-        yolo_model_path=os.getenv("DEADHEART_YOLO_PATH", "backend/models/yolov_deadheart.pt"),
-        tabnet_model_path=os.getenv("DEADHEART_TABNET_PATH", "backend/models/tabnet_deadheart.joblib")
+        disease_name="deadheart",
+        yolo_model_path=os.getenv("DEADHEART_YOLO_PATH", "models/yolov_deadheart.pt"),
+        tabnet_model_path=os.getenv("DEADHEART_TABNET_PATH", "models/tabnet_deadheart.joblib")
     )
     
     tiller_predictor = DiseasePredictor(

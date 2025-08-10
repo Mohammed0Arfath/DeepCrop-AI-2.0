@@ -5,8 +5,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Questionnaire = ({ diseaseType, onDataChange }) => {
+  const { t } = useTranslation();
   const [answers, setAnswers] = useState({});
   const [mode, setMode] = useState('form'); // 'form' or 'json'
   const [jsonInput, setJsonInput] = useState('');
@@ -17,11 +19,11 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
     { id: 'plants_stunted_slow_growth', text: 'Are the plants stunted and the few shoots that emerge are growing slowly?', type: 'select', options: ['yes', 'no'] },
     { id: 'honey_dew_sooty_mould', text: 'Do you see heavy secretion of honey dew on the leaves, leading to sooty mould development?', type: 'select', options: ['yes', 'no'] },
     { id: 'nodal_regions_infested', text: 'Are the nodal regions more infested than the internodal regions?', type: 'select', options: ['yes', 'no'] },
-    { id: 'tillers_white_yellow', text: 'Are the tillers that are appearing white or yellow?', type: 'select', options: ['yes', 'no'] },
+    { id: 'tillers_white_yellow', text: 'Are the bottom of shoot that are appearing white or yellow?', type: 'select', options: ['yes', 'no'] },
     { id: 'high_aphid_population', text: 'Is there a high population of aphids (Melanaphis sacchari and Rhopalosiphum maidis) in the field?', type: 'select', options: ['yes', 'no'] },
     { id: 'gaps_early_drying', text: 'Are there gaps in the field because the leaves are drying early?', type: 'select', options: ['yes', 'no'] },
     { id: 'cane_stunted_reduced_internodes', text: 'Does the cane become stunted with reduced internodal length?', type: 'select', options: ['yes', 'no'] },
-    { id: 'no_millable_cane_formation', text: 'Is there no millable cane formation in the affected tillers?', type: 'select', options: ['yes', 'no'] },
+    { id: 'no_millable_cane_formation', text: 'Is there no millable cane formation in the affected plants?', type: 'select', options: ['yes', 'no'] },
     { id: 'profuse_lateral_buds', text: 'Have you observed any profuse sprouting of lateral buds with narrow, erect leaves?', type: 'select', options: ['yes', 'no'] },
     { id: 'woolly_matter_deposition', text: 'Is there a distinct deposition of woolly matter on the ground or soil?', type: 'select', options: ['yes', 'no'] },
     { id: 'gradual_yellowing_drying', text: 'Is there a gradual yellowing and drying of the foliage?', type: 'select', options: ['yes', 'no'] },
@@ -40,13 +42,13 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
     { id: 'reduction_millable_canes', text: 'Is there a reduction in the number of millable canes?', type: 'select', options: ['yes', 'no'] },
     { id: 'bore_holes_base_ground_level', text: 'Are there bore holes at the base of the shoot, just above the ground level?', type: 'select', options: ['yes', 'no'] },
     { id: 'dirty_white_larvae_violet_stripes', text: 'Have you observed any dirty white larvae with five dark violet stripes in the shoots?', type: 'select', options: ['yes', 'no'] },
-    { id: 'central_shoot_comes_out_easily', text: 'When you pull on the central shoot, does it come out easily?', type: 'select', options: ['yes', 'no'] },
-    { id: 'small_holes_stem_near_ground', text: 'Are there any small holes visible on the stem of the sugarcane plant near the ground?', type: 'select', options: ['yes', 'no'] },
-    { id: 'crop_early_growth_phase', text: 'Is the sugarcane crop in an early phase of growth?', type: 'select', options: ['yes', 'no'] },
+    { id: 'central_shoot_comes_out_easily', text: 'Have you seen flat, scale-like eggs laid in clusters on the underside of the leaves?', type: 'select', options: ['yes', 'no'] },
+    { id: 'small_holes_stem_near_ground', text: 'Are the sugarcane internodes constricted and shortened?', type: 'select', options: ['yes', 'no'] },
+    { id: 'crop_early_growth_phase', text: 'Is the sugarcane crop in an early phase(1-3 months) of growth?', type: 'select', options: ['yes', 'no'] },
     { id: 'leaves_drying_tip_margins', text: 'Is there a drying of leaves from the tip along the margins?', type: 'select', options: ['yes', 'no'] },
     { id: 'plant_yellow_wilted', text: 'Does the plant look yellow and wilted?', type: 'select', options: ['yes', 'no'] },
     { id: 'rotten_central_shoot_foul_odor', text: 'Does the rotten portion of the central shoot have a foul odor?', type: 'select', options: ['yes', 'no'] },
-    { id: 'rotten_straw_colored_dead_heart', text: 'Have you observed a rotten portion of the straw-colored dead heart?', type: 'select', options: ['yes', 'no'] }
+    { id: 'rotten_straw_colored_dead_heart', text: 'Have you observed a rotten portion of the straw-colored shoot?', type: 'select', options: ['yes', 'no'] }
   ];
 
   // Select questions based on disease type
@@ -145,8 +147,8 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
   return (
     <div className="questionnaire">
       <div className="questionnaire-header">
-        <h2>Plant Condition Assessment</h2>
-        <p>Please provide information about the plant condition for {diseaseType} analysis:</p>
+        <h2>{t('questionnaire.title', 'Symptom Assessment')}</h2>
+        <p>{t('questionnaire.provideInfo', `Please provide information about the plant condition for ${diseaseType} analysis:`)}</p>
         
         <div className="mode-selector">
           <button 
@@ -175,7 +177,9 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
           <div className="questions-grid">
             {questions.map((question) => (
               <div key={question.id} className="question-item">
-                <label htmlFor={question.id}>{question.text}</label>
+                <label htmlFor={question.id}>
+                  {t(`questions.${diseaseType}.${question.id}.text`, question.text)}
+                </label>
                 
                 {question.type === 'select' ? (
                   <select
@@ -183,12 +187,19 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
                     value={answers[question.id] || ''}
                     onChange={(e) => handleInputChange(question.id, e.target.value)}
                   >
-                    <option value="">Select...</option>
-                    {question.options.map((option) => (
-                      <option key={option} value={option}>
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
-                      </option>
-                    ))}
+                    <option value="">{t('questionnaire.select', 'Select...')}</option>
+                    {question.options.map((option) => {
+                      const label = option === 'yes'
+                        ? t('questionnaire.yes', 'Yes')
+                        : option === 'no'
+                        ? t('questionnaire.no', 'No')
+                        : option;
+                      return (
+                        <option key={option} value={option}>
+                          {label}
+                        </option>
+                      );
+                    })}
                   </select>
                 ) : (
                   <input
@@ -199,7 +210,7 @@ const Questionnaire = ({ diseaseType, onDataChange }) => {
                     step={question.step}
                     value={answers[question.id] || ''}
                     onChange={(e) => handleInputChange(question.id, e.target.value)}
-                    placeholder={`Enter ${question.text.toLowerCase()}`}
+                    placeholder={t(`questions.${diseaseType}.${question.id}.text`, question.text)}
                   />
                 )}
               </div>

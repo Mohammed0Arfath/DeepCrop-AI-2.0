@@ -33,6 +33,8 @@
     "processing": "All questions have been answered. Processing your responses...",
     "clickToEnlarge": "Click to enlarge",
     "imageNotAvailable": "Image not available - will be added soon",
+    "select": "Select...",
+    "provideInfo": "Please provide information about the plant condition for analysis:",
     "yes": "Yes",
     "no": "No"
   },

@@ -183,11 +183,14 @@ const LocationSelector = ({ onLocationChange }) => {
           <div className="manual-selection">
             <div className="selection-header">
               <span>🗺️ {t('weather.selectManually', 'Select Manually')}</span>
-              {useGPS && (
-                <button className="switch-btn" onClick={handleManualSelection}>
-                  {t('weather.switchToManual', 'Switch to Manual')}
-                </button>
-              )}
+              <button
+                className={`switch-btn ${!useGPS ? 'primary' : ''}`}
+                onClick={handleManualSelection}
+              >
+                {!useGPS
+                  ? t('weather.selectManually', 'Select Manually')
+                  : t('weather.switchToManual', 'Switch to Manual')}
+              </button>
             </div>
 
             {!useGPS && (

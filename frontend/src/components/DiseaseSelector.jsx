@@ -14,13 +14,13 @@ const DiseaseSelector = ({ selectedDisease, onDiseaseSelect }) => {
       id: 'deadheart',
       name: t('diseases.deadheart'),
       description: 'A disease that affects the growing point of sugarcane, causing the central shoot to die.',
-      icon: '💔'
+      icon: '🐛'
     },
     {
       id: 'tiller',
       name: t('diseases.tiller'),
       description: 'A condition affecting the tillering process in sugarcane plants.',
-      icon: '🌱'
+      icon: '🎋'
     }
   ];
 

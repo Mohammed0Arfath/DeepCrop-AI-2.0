@@ -17,6 +17,7 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 import cv2
 import joblib
+from pathlib import Path
 
 # YOLO imports (using ultralytics)
 try:
@@ -44,30 +45,51 @@ class DiseasePredictor:
             tabnet_model_path: Path to the TabNet model file (.joblib)
         """
         self.disease_name = disease_name
-        self.yolo_model_path = yolo_model_path
-        self.tabnet_model_path = tabnet_model_path
+        self.yolo_model_path = self._resolve_path(yolo_model_path)
+        self.tabnet_model_path = self._resolve_path(tabnet_model_path)
         
         # Fusion weights (configurable via environment variables)
         self.w_img = float(os.getenv("IMAGE_WEIGHT", "0.6"))
         self.w_tab = float(os.getenv("TABNET_WEIGHT", "0.4"))
+        # YOLO inference params (configurable)
+        self.yolo_conf = float(os.getenv("YOLO_CONF", "0.25"))
+        self.yolo_iou = float(os.getenv("YOLO_IOU", "0.45"))
+        self.yolo_imgsz = int(os.getenv("YOLO_IMGSZ", os.getenv("IMG_SIZE", "640")))
+        self.yolo_device = (os.getenv("YOLO_DEVICE", "").strip() or None)
         
         # Load models
         self.yolo_model = self._load_yolo_model()
-        # Map class indices to names if available (Ultralytics provides model.names)
-        self.class_names = {}
-        try:
-            if self.yolo_model and hasattr(self.yolo_model, "names"):
-                names = self.yolo_model.names
-                if isinstance(names, dict):
-                    self.class_names = {int(k): str(v) for k, v in names.items()}
-                elif isinstance(names, list):
-                    self.class_names = {i: str(n) for i, n in enumerate(names)}
-        except Exception:
-            self.class_names = {}
         self.tabnet_model = self._load_tabnet_model()
         
         logger.info(f"Initialized {disease_name} predictor with weights: img={self.w_img}, tabnet={self.w_tab}")
     
+    def _resolve_path(self, path: str) -> str:
+        try:
+            p = Path(path)
+            if p.is_absolute():
+                return str(p)
+            backend_dir = Path(__file__).resolve().parents[1]  # .../sugarcane-disease-detection/backend
+            # Try relative to backend dir (most common)
+            candidate = (backend_dir / path).resolve()
+            if candidate.exists():
+                return str(candidate)
+            # If path included "backend/" prefix while CWD is backend, strip it
+            if path.startswith("backend/"):
+                without = path[len("backend/"):]
+                candidate2 = (backend_dir / without).resolve()
+                if candidate2.exists():
+                    return str(candidate2)
+            # Try project root as a fallback
+            project_root = backend_dir.parent
+            candidate3 = (project_root / path).resolve()
+            if candidate3.exists():
+                return str(candidate3)
+            # Return best-effort resolved path (even if not existing yet)
+            return str(candidate)
+        except Exception as e:
+            logger.warning(f"Failed to resolve path {path}: {e}")
+            return path
+
     def _load_yolo_model(self):
         """Load YOLO model from file"""
         try:
@@ -80,22 +102,19 @@ class DiseasePredictor:
                 return None
                 
             model = YOLO(self.yolo_model_path)
-            size_info = None
-            try:
-                size_info = os.path.getsize(self.yolo_model_path)
-            except Exception:
-                size_info = None
-            # Log basic model info and classes if available
-            names = []
-            try:
-                raw_names = getattr(model, "names", {})
-                if isinstance(raw_names, dict):
-                    names = [str(v) for _, v in sorted(raw_names.items(), key=lambda x: int(x[0]))]
-                elif isinstance(raw_names, list):
-                    names = [str(n) for n in raw_names]
-            except Exception:
-                names = []
-            logger.info(f"Loaded YOLO model from {self.yolo_model_path} (size={size_info}) classes={names if names else 'unknown'}")
+            logger.info(f"Loaded YOLO model from {self.yolo_model_path}")
+            
+            # Debug model structure for segmentation models
+            if self.disease_name == "deadheart":
+                logger.info(f"Dead heart model type: {type(model)}")
+                logger.info(f"Dead heart model attributes: {[attr for attr in dir(model) if not attr.startswith('_')]}")
+                
+                # Check if it's a segmentation model
+                if hasattr(model, 'task'):
+                    logger.info(f"Model task: {model.task}")
+                if hasattr(model, 'model'):
+                    logger.info(f"Inner model type: {type(model.model)}")
+            
             return model
             
         except Exception as e:
@@ -180,13 +199,16 @@ class DiseasePredictor:
         
         # Run YOLO prediction with error handling for corrupted segmentation models
         logger.info(f"Running YOLO prediction for {self.disease_name}")
-        conf = float(os.getenv("YOLO_CONF", "0.25"))
-        iou = float(os.getenv("YOLO_IOU", "0.45"))
-        imgsz = int(os.getenv("IMG_SIZE", "640"))
-        device = os.getenv("YOLO_DEVICE", "").strip() or None
         
         try:
-            results = self.yolo_model.predict(source=image_path, imgsz=imgsz, conf=conf, iou=iou, device=device, verbose=False)
+            results = self.yolo_model.predict(
+                source=image_path,
+                conf=self.yolo_conf,
+                iou=self.yolo_iou,
+                imgsz=self.yolo_imgsz,
+                device=self.yolo_device,
+                verbose=False
+            )
         except AttributeError as e:
             if "'Segment' object has no attribute 'detect'" in str(e):
                 logger.error(f"Segmentation model corruption detected: {e}")
@@ -198,7 +220,14 @@ class DiseasePredictor:
                     # Force reload the model
                     self.yolo_model = YOLO(self.yolo_model_path)
                     # Try prediction again
-                    results = self.yolo_model.predict(source=image_path, imgsz=imgsz, conf=conf, iou=iou, device=device, verbose=False)
+                    results = self.yolo_model.predict(
+                        source=image_path,
+                        conf=self.yolo_conf,
+                        iou=self.yolo_iou,
+                        imgsz=self.yolo_imgsz,
+                        device=self.yolo_device,
+                        verbose=False
+                    )
                     logger.info("Successfully reloaded and predicted with model")
                 except Exception as reload_error:
                     logger.error(f"Model reload failed: {reload_error}")
@@ -234,17 +263,13 @@ class DiseasePredictor:
                 masks_xy = result.masks.xy if hasattr(result.masks, 'xy') else None
                 logger.info(f"Masks XY available: {masks_xy is not None}")
                 
-                # Get boxes, classes, and confidence scores if available
+                # Get confidence scores from boxes
                 if hasattr(result, 'boxes') and result.boxes is not None:
-                    boxes_np = result.boxes.xyxy.cpu().numpy()
                     scores = result.boxes.conf.cpu().numpy()
-                    classes_np = result.boxes.cls.cpu().numpy() if hasattr(result.boxes, 'cls') else np.zeros(len(scores))
-                    logger.info(f"Found {len(scores)} instances with scores: {scores}")
+                    logger.info(f"Found {len(scores)} confidence scores: {scores}")
                 else:
-                    boxes_np = np.zeros((len(masks_data), 4))
-                    classes_np = np.zeros(len(masks_data))
-                    scores = np.array([0.8] * len(masks_data))
-                    logger.info("No boxes found, using default confidence and empty boxes")
+                    scores = [0.8] * len(masks_data)
+                    logger.info("No boxes found, using default confidence")
                 
                 # Process each mask
                 for i, (mask, score) in enumerate(zip(masks_data, scores)):
@@ -262,26 +287,11 @@ class DiseasePredictor:
                             polygon = polygon_data
                         logger.info(f"Polygon for mask {i}: {len(polygon) if polygon else 0} points")
                     
-                    # Derive bounding box for this mask
-                    if i < len(boxes_np):
-                        x1, y1, x2, y2 = boxes_np[i]
-                    else:
-                        ys, xs = np.where(mask > 0.5)
-                        if len(xs) > 0 and len(ys) > 0:
-                            x1, y1, x2, y2 = np.min(xs), np.min(ys), np.max(xs), np.max(ys)
-                        else:
-                            x1, y1, x2, y2 = 0, 0, 0, 0
-                    box_list = [int(x1), int(y1), int(x2), int(y2)]
-                    # Class label
-                    cls_idx = int(classes_np[i]) if i < len(classes_np) else 0
-                    label_name = self.class_names.get(cls_idx, self.disease_name) if hasattr(self, "class_names") else self.disease_name
-                    
                     detection = {
                         "mask": mask.tolist(),  # Binary mask
                         "polygon": polygon,     # Polygon coordinates
-                        "box": box_list,
                         "score": float(score),
-                        "class": label_name,
+                        "class": self.disease_name,
                         "type": "segmentation"
                     }
                     detections.append(detection)
@@ -299,11 +309,10 @@ class DiseasePredictor:
                 logger.info(f"Found {len(boxes)} bounding boxes with scores: {scores}")
                 
                 for box, score, cls in zip(boxes, scores, classes):
-                    label_name = self.class_names.get(int(cls), self.disease_name) if hasattr(self, "class_names") else self.disease_name
                     detection = {
                         "box": [int(box[0]), int(box[1]), int(box[2]), int(box[3])],
                         "score": float(score),
-                        "class": label_name,
+                        "class": self.disease_name,
                         "type": "detection"
                     }
                     detections.append(detection)
@@ -320,6 +329,47 @@ class DiseasePredictor:
         overlay_image_b64 = self._create_overlay_image(image, detections)
         
         return max_confidence, detections, overlay_image_b64
+
+    def _tabnet_only_prediction(self, image: Image.Image) -> Tuple[float, List[Dict], str]:
+        """
+        Fallback when YOLO inference fails. Uses TabNet only:
+        - image_confidence = 0.0
+        - detections = []
+        - overlay = original image with a note
+        """
+        try:
+            # Create a simple overlay noting fallback mode
+            img_array = np.array(image)
+            if len(img_array.shape) == 3:
+                overlay = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+            else:
+                overlay = img_array.copy()
+
+            # Draw a semi-transparent banner
+            h, w = overlay.shape[:2]
+            banner_h = max(30, h // 18)
+            banner = overlay.copy()
+            cv2.rectangle(banner, (0, 0), (w, banner_h), (0, 0, 0), -1)
+            alpha = 0.5
+            overlay = cv2.addWeighted(overlay, 1 - alpha, banner, alpha, 0)
+
+            msg = f"{self.disease_name}: image model unavailable, using questionnaire only"
+            cv2.putText(overlay, msg, (10, banner_h - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
+            # Convert back to base64
+            if len(overlay.shape) == 3:
+                overlay_rgb = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
+            else:
+                overlay_rgb = overlay
+            overlay_pil = Image.fromarray(overlay_rgb)
+            buffer = BytesIO()
+            overlay_pil.save(buffer, format="PNG")
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            return 0.0, [], f"data:image/png;base64,{img_str}"
+        except Exception as e:
+            logger.error(f"Failed to create TabNet-only overlay: {e}")
+            # As a last resort, return minimal payload
+            return 0.0, [], ""
     
     def _process_questionnaire(self, questions_json: str) -> float:
         """

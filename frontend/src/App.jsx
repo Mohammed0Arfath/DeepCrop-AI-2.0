@@ -14,6 +14,7 @@ import EnhancedQuestionnaire from './components/EnhancedQuestionnaire';
 import Results from './components/Results';
 import WeatherDashboard from './components/WeatherDashboard';
 import './App.css';
+import { getCompletionStatus } from './utils/questions';
 
 // Main App Component (wrapped with translations)
 const AppContent = () => {
@@ -29,6 +30,11 @@ const AppContent = () => {
 
   // API base URL (configurable)
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+  // Completion status for questionnaire
+  const status = selectedDisease
+    ? getCompletionStatus(selectedDisease, questionnaireData)
+    : { isComplete: false, answeredCount: 0, total: 0 };
 
   // Handle disease selection
   const handleDiseaseSelect = (disease) => {
@@ -52,8 +58,13 @@ const AppContent = () => {
 
   // Submit prediction request
   const handleSubmit = async () => {
-    if (!selectedDisease || !uploadedImage || Object.keys(questionnaireData).length === 0) {
-      setError('Please select a disease, upload an image, and fill out the questionnaire.');
+    if (!selectedDisease || !uploadedImage) {
+      setError(t('errors.imageRequired', 'Please upload an image'));
+      return;
+    }
+    const localStatus = getCompletionStatus(selectedDisease, questionnaireData);
+    if (!localStatus.isComplete) {
+      setError(t('questionnaire.mustAnswerAll', 'Please answer all questions before analyzing.'));
       return;
     }
 
@@ -151,7 +162,7 @@ const AppContent = () => {
                 <button 
                   className="submit-btn"
                   onClick={handleSubmit}
-                  disabled={loading || !uploadedImage || Object.keys(questionnaireData).length === 0}
+                  disabled={loading || !uploadedImage || !status.isComplete}
                 >
                   {loading ? t('buttons.analyzing') : t('buttons.submit')}
                 </button>
@@ -164,6 +175,15 @@ const AppContent = () => {
                   {t('buttons.reset')}
                 </button>
               </div>
+              {selectedDisease && !status.isComplete && (
+                <div className="incomplete-status">
+                  <small>
+                    {t('questionnaire.incompleteProgress', 'Answered {answered} of {total}.')
+                      .replace('{answered}', String(status.answeredCount))
+                      .replace('{total}', String(status.total))}
+                  </small>
+                </div>
+              )}
             </section>
           </>
         )}

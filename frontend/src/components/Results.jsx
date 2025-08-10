@@ -19,11 +19,8 @@ const Results = ({ results, diseaseType }) => {
     metadata
   } = results;
 
-  // Normalize names so backend "dead_heart" matches frontend "deadheart"
-  const normalize = (s) => (s || '').toString().replace(/[_\s]/g, '').toLowerCase();
-
   // Determine result status
-  const isPositive = normalize(final_label) === normalize(diseaseType);
+  const isPositive = final_label === diseaseType;
   const confidenceLevel = final_score >= 0.8 ? 'high' : final_score >= 0.5 ? 'medium' : 'low';
 
   return (
@@ -69,7 +66,7 @@ const Results = ({ results, diseaseType }) => {
             <div className="score-bar">
               <div 
                 className="score-fill image-score" 
-                style={{ width: `${image_confidence * 100}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, ((image_confidence || 0) * 100)))}%` }}
               ></div>
             </div>
             <div className="score-value">{(image_confidence * 100).toFixed(1)}%</div>
@@ -80,7 +77,7 @@ const Results = ({ results, diseaseType }) => {
             <div className="score-bar">
               <div 
                 className="score-fill tabnet-score" 
-                style={{ width: `${tabnet_prob * 100}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, ((tabnet_prob || 0) * 100)))}%` }}
               ></div>
             </div>
             <div className="score-value">{(tabnet_prob * 100).toFixed(1)}%</div>
@@ -91,7 +88,7 @@ const Results = ({ results, diseaseType }) => {
             <div className="score-bar">
               <div 
                 className={`score-fill final-score-fill ${confidenceLevel}`}
-                style={{ width: `${final_score * 100}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, ((final_score || 0) * 100)))}%` }}
               ></div>
             </div>
             <div className="score-value">{(final_score * 100).toFixed(1)}%</div>
@@ -120,24 +117,37 @@ const Results = ({ results, diseaseType }) => {
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Type</th>
                   <th>Class</th>
                   <th>Confidence</th>
-                  <th>Bounding Box</th>
+                  <th>Region</th>
                 </tr>
               </thead>
               <tbody>
-                {detections.map((detection, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td className="detection-class">{detection.class}</td>
-                    <td className="detection-confidence">
-                      {(detection.score * 100).toFixed(1)}%
-                    </td>
-                    <td className="detection-box">
-                      [{detection.box.map(coord => Math.round(coord)).join(', ')}]
-                    </td>
-                  </tr>
-                ))}
+                {detections.map((d, idx) => {
+                  const kind = d.type || (Array.isArray(d.box) ? 'detection' : 'segmentation');
+                  let region = '—';
+                  if (kind === 'detection' && Array.isArray(d.box)) {
+                    region = `[${d.box.map(n => Math.round(n)).join(', ')}]`;
+                  } else if (kind === 'segmentation') {
+                    if (Array.isArray(d.polygon)) {
+                      region = `polygon (${d.polygon.length} points)`;
+                    } else if (d.mask) {
+                      region = 'mask';
+                    }
+                  }
+                  return (
+                    <tr key={idx}>
+                      <td>{idx + 1}</td>
+                      <td>{kind}</td>
+                      <td className="detection-class">{d.class}</td>
+                      <td className="detection-confidence">
+                        {((d.score || 0) * 100).toFixed(1)}%
+                      </td>
+                      <td className="detection-box">{region}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
