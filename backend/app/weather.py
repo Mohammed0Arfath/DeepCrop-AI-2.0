@@ -156,6 +156,9 @@ class WeatherService:
         
         # Aggregate daily data
         for date_str, day_data in daily_data.items():
+            hums = day_data["humidity"]
+            morning_rh = hums[0] if len(hums) > 0 else 0
+            evening_rh = hums[-1] if len(hums) > 0 else 0
             forecasts.append({
                 "date": date_str,
                 "temperature_min": min(day_data["temperatures"]),
@@ -168,7 +171,9 @@ class WeatherService:
                 "wind_speed_max": max(day_data["wind_speed"]),
                 "pressure_avg": sum(day_data["pressure"]) / len(day_data["pressure"]),
                 "dominant_weather": max(set(day_data["weather_conditions"]), 
-                                      key=day_data["weather_conditions"].count)
+                                      key=day_data["weather_conditions"].count),
+                "morning_rh": morning_rh,
+                "evening_rh": evening_rh
             })
         
         forecast_data = {

@@ -134,14 +134,9 @@ async def get_weather_forecast(lat: float, lon: float, days: int = 5):
 @app.get("/weather/disease-risk")
 async def get_disease_risk_assessment(lat: float, lon: float):
     """
-    Get disease risk assessment based on current weather conditions
+    Get disease (pest) risk assessment using OpenWeather Free data (approx rules).
     
-    Args:
-        lat: Latitude
-        lon: Longitude
-        
-    Returns:
-        Disease risk assessment for both dead heart and tiller diseases
+    Uses current + 5-day / 3-hour forecast to approximate ESB (Dead Heart) rules.
     """
     if not weather_service.api_key:
         logger.warning("Attempted to access weather endpoint without API key.")
@@ -152,12 +147,15 @@ async def get_disease_risk_assessment(lat: float, lon: float):
     try:
         # Get current weather data
         weather_data = await weather_service.get_current_weather(lat, lon)
+        # Get forecast (3h steps aggregated daily)
+        forecast_data = await weather_service.get_weather_forecast(lat, lon, days=5)
         
-        # Calculate disease risk
-        risk_assessment = disease_risk_assessor.calculate_combined_risk(weather_data)
+        # Calculate disease risk with approx_free rule engine (deadheart) + existing tiller
+        risk_assessment = disease_risk_assessor.calculate_combined_risk_with_forecast(weather_data, forecast_data)
         
         # Add weather data to response
         risk_assessment["weather_data"] = weather_data
+        risk_assessment["forecast_summary"] = forecast_data.get("forecast", [])  # lightweight echo
         
         return JSONResponse(content=risk_assessment)
     except HTTPException as e:

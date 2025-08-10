@@ -182,7 +182,14 @@ const WeatherDashboard = ({ onLocationSelected }) => {
           {/* Disease Risk Assessment */}
           {riskData && (
             <div className="risk-assessment-section">
-              <h3>{t('weather.diseaseRisk', 'Pest Risk Assessment')}</h3>
+              <h3>
+                {t('weather.diseaseRisk', 'Pest Risk Assessment')}
+                {riskData && (riskData.rule_mode === 'approx_free' || riskData.approx_mode) && (
+                  <span className="approx-badge" style={{ marginLeft: '8px', padding: '2px 8px', borderRadius: '12px', background: '#eef3ff', color: '#1a73e8', fontSize: '12px', fontWeight: 600 }}>
+                    OpenWeather Free (approx)
+                  </span>
+                )}
+              </h3>
               
               {/* Overall Risk */}
               <div className="overall-risk">

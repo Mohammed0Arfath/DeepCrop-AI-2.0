@@ -331,5 +331,159 @@ class DiseaseRiskAssessment:
             }
         }
 
+    def _approx_esb_deadheart(self, weather_data: Dict, forecast_data: Dict) -> Dict:
+        """
+        Approximate ESB (Dead Heart) risk using OpenWeather free data:
+        - Uses current + 3-hour forecast aggregated to daily.
+        - Proxies 'last N days' with upcoming daily forecast and current rain.
+        - Adds '(approx)' to reasons where proxy is used.
+        """
+        from statistics import mean
+
+        current = weather_data.get("current", {})
+        forecasts = (forecast_data or {}).get("forecast", [])
+
+        # Helper getters with safe defaults
+        def today_forecast():
+            today_iso = datetime.now().date().isoformat()
+            for d in forecasts:
+                if d.get("date") == today_iso:
+                    return d
+            # fallback to first forecast day
+            return forecasts[0] if forecasts else {}
+
+        def next_n_days(n: int):
+            return forecasts[:n] if forecasts else []
+
+        td = today_forecast()
+
+        # Extract fields with fallbacks
+        min_temp_today = td.get("temperature_min", current.get("temperature", 0.0))
+        max_temp_today = td.get("temperature_max", current.get("temperature", 0.0))
+        eve_rh_today = td.get("evening_rh", current.get("humidity", 0))  # proxy
+        morn_rh_today = td.get("morning_rh", current.get("humidity", 0))  # proxy
+        rain_1h_now = current.get("rainfall_1h", 0.0)
+        rain_3h_now = current.get("rainfall_3h", 0.0)
+        total_rain_today = td.get("total_rainfall", 0.0)
+
+        # Proxies for rainfall windows (approx, due to free plan limits)
+        next3 = next_n_days(3)
+        next7 = next_n_days(7)
+
+        # Approximate "no significant rain in last 3 days"
+        # Proxy: minimal current rain and very low rain expected today
+        no_sig_rain_last3_proxy = (rain_1h_now == 0.0) and (total_rain_today <= 1.0)
+
+        # Approximate "no rain in last 24h"
+        # Proxy: current rain is 0 and today total is ~0
+        no_rain_24h_proxy = (rain_1h_now == 0.0) and (total_rain_today == 0.0)
+
+        # Approximate "consecutive dry days >= 4" (future outlook)
+        consecutive_dry = 0
+        for d in next7:
+            if (d.get("total_rainfall", 0.0) < 2.0):
+                consecutive_dry += 1
+            else:
+                break
+
+        # Avg temp over next dry window (or next 4 if available)
+        eval_days = next7[:max(4, consecutive_dry)] if next7 else []
+        avg_temp_future = mean([d.get("temperature_avg", 0.0) for d in eval_days]) if eval_days else td.get("temperature_avg", current.get("temperature", 0.0))
+
+        # Approx "prior rainfall week < 5mm" → future week outlook
+        prior_week_rain_proxy = sum([d.get("total_rainfall", 0.0) for d in next7]) < 5.0
+
+        # Temp above normal proxy: today > mean of next 7 days
+        mean_7_future = mean([d.get("temperature_avg", 0.0) for d in next7]) if next7 else td.get("temperature_avg", current.get("temperature", 0.0))
+        temp_above_normal_proxy = (td.get("temperature_avg", current.get("temperature", 0.0)) > mean_7_future)
+
+        # Disrupters: heavy rain ≥50mm any day in next 7 or high RH day (>80%) in next 7
+        heavy_rain_any_next7 = any(d.get("total_rainfall", 0.0) >= 50.0 for d in next7)
+        rh80_any_next7 = any(d.get("humidity_max", 0.0) > 80.0 for d in next7)
+
+        reasons = []
+        risk_level = "low"
+        score = 30  # default LOW score
+
+        # Disrupters first: force LOW
+        if heavy_rain_any_next7 or rh80_any_next7:
+            reasons.append("Monsoon/disrupter: heavy rain ≥50mm or RH>80% expected (approx)")
+            risk_level = "low"
+            score = 30
+        else:
+            # High conditions
+            high_A = (min_temp_today >= 23.0) and (eve_rh_today <= 60.0) and no_sig_rain_last3_proxy
+            high_B = (max_temp_today >= 35.0) and (eve_rh_today <= 60.0) and no_rain_24h_proxy
+
+            # Elevated conditions
+            elevated_C = (consecutive_dry >= 4) and (avg_temp_future > 28.0)
+            elevated_D = (morn_rh_today <= 50.0) and prior_week_rain_proxy and temp_above_normal_proxy
+
+            if high_A:
+                reasons.append("Min temp ≥23°C AND evening RH ≤60% AND ~no rain last 3 days (approx)")
+                risk_level = "high"
+                score = 90
+            elif high_B:
+                reasons.append("Max temp ≥35°C AND evening RH ≤60% AND ~no rain last 24h (approx)")
+                risk_level = "high"
+                score = 88
+            elif elevated_C:
+                reasons.append("≥4 dry days (<2mm) ahead AND avg temp >28°C (approx)")
+                risk_level = "medium"  # treated as ELEVATED → between medium/high
+                score = 65
+            elif elevated_D:
+                reasons.append("Morning RH ≤50% AND week rain <5mm AND temp above normal (approx)")
+                risk_level = "medium"
+                score = 60
+            else:
+                reasons.append("No high/elevated ESB conditions (approx) → Low")
+
+        level_enum = RiskLevel.HIGH if risk_level == "high" else (RiskLevel.MEDIUM if risk_level == "medium" else RiskLevel.LOW)
+
+        return {
+            "disease": "deadheart",
+            "risk_level": level_enum.value,
+            "risk_score": score,
+            "risk_color": self._get_risk_color(level_enum),
+            "risk_factors": reasons,
+            "recommendations": [],
+            "assessment_time": datetime.now().isoformat(),
+            "approx_mode": True
+        }
+
+    def calculate_combined_risk_with_forecast(self, weather_data: Dict, forecast_data: Dict) -> Dict:
+        """Calculate combined risk using approx_free ESB rules for deadheart plus existing tiller."""
+        deadheart_risk = self._approx_esb_deadheart(weather_data, forecast_data)
+        tiller_risk = self.calculate_tiller_risk(weather_data)
+
+        max_score = max(deadheart_risk["risk_score"], tiller_risk["risk_score"])
+        overall_risk_level = self._classify_risk_level(max_score)
+
+        all_recommendations = []
+        if deadheart_risk["risk_level"] in ["high", "critical"]:
+            all_recommendations.extend([f"Dead Heart: {rec}" for rec in deadheart_risk.get("recommendations", [])[:3]])
+        if tiller_risk["risk_level"] in ["high", "critical"]:
+            all_recommendations.extend([f"Tiller: {rec}" for rec in tiller_risk.get("recommendations", [])[:3]])
+
+        return {
+            "overall_risk": {
+                "risk_level": overall_risk_level.value,
+                "risk_score": max_score,
+                "risk_color": self._get_risk_color(overall_risk_level)
+            },
+            "deadheart": deadheart_risk,
+            "tiller": tiller_risk,
+            "combined_recommendations": all_recommendations[:8],
+            "assessment_time": datetime.now().isoformat(),
+            "weather_summary": {
+                "temperature": weather_data.get("current", {}).get("temperature"),
+                "humidity": weather_data.get("current", {}).get("humidity"),
+                "rainfall": weather_data.get("current", {}).get("rainfall_3h"),
+                "conditions": weather_data.get("current", {}).get("weather_description")
+            },
+            "approx_mode": True,
+            "rule_mode": "approx_free"
+        }
+
 # Global disease risk assessment instance
 disease_risk_assessor = DiseaseRiskAssessment()
