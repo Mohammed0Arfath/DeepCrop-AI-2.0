@@ -10,7 +10,7 @@ import LocationSelector from './LocationSelector';
 import RiskIndicator from './RiskIndicator';
 import './WeatherDashboard.css';
 
-const WeatherDashboard = () => {
+const WeatherDashboard = ({ onLocationSelected }) => {
   const { t } = useTranslation();
   const [location, setLocation] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
@@ -68,7 +68,14 @@ const WeatherDashboard = () => {
 
   const handleLocationChange = useCallback((newLocation) => {
     setLocation(newLocation);
-  }, []);
+    try {
+      if (onLocationSelected) {
+        onLocationSelected(newLocation);
+      }
+    } catch (e) {
+      console.error('onLocationSelected callback error:', e);
+    }
+  }, [onLocationSelected]);
 
   const getWeatherIcon = (iconCode) => {
     // Map OpenWeatherMap icons to emojis

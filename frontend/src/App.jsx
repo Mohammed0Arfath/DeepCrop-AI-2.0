@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { useTranslation } from './contexts/LanguageContext';
+import { useTranslation, useLanguage } from './contexts/LanguageContext';
 import LanguageSelector from './components/LanguageSelector';
 import DiseaseSelector from './components/DiseaseSelector';
 import ImageUpload from './components/ImageUpload';
@@ -19,6 +19,7 @@ import { getCompletionStatus } from './utils/questions';
 // Main App Component (wrapped with translations)
 const AppContent = () => {
   const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
   // State management
   const [selectedDisease, setSelectedDisease] = useState('');
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -27,6 +28,8 @@ const AppContent = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Location selected from WeatherDashboard (required)
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   // API base URL (configurable)
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -68,6 +71,12 @@ const AppContent = () => {
       return;
     }
 
+    // Require location selection
+    if (!selectedLocation) {
+      setError(t('weather.locationRequired', 'Please select your location (Use Current Location or Select Manually)'));
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -76,6 +85,7 @@ const AppContent = () => {
       const formData = new FormData();
       formData.append('image', uploadedImage);
       formData.append('questions', JSON.stringify(questionnaireData));
+      formData.append('language', currentLanguage || 'en');
 
       // Make API request
       const endpoint = `${API_BASE_URL}/predict/${selectedDisease}`;
@@ -127,7 +137,7 @@ const AppContent = () => {
       <main className="app-main">
         {/* Weather Dashboard */}
         <section className="section">
-          <WeatherDashboard />
+          <WeatherDashboard onLocationSelected={(loc) => setSelectedLocation(loc)} />
         </section>
 
         {/* Disease Selection */}
@@ -162,7 +172,7 @@ const AppContent = () => {
                 <button 
                   className="submit-btn"
                   onClick={handleSubmit}
-                  disabled={loading || !uploadedImage || !status.isComplete}
+                  disabled={loading || !uploadedImage || !status.isComplete || !selectedLocation}
                 >
                   {loading ? t('buttons.analyzing') : t('buttons.submit')}
                 </button>

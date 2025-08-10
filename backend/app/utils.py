@@ -185,3 +185,154 @@ def get_environment_config() -> Dict[str, Any]:
             "tiller_tabnet": os.getenv("TILLER_TABNET_PATH", "models/tabnet_tiller.joblib")
         }
     }
+
+
+# ---------------- Gemini Recommendations Integration ----------------
+
+def _get_gemini_model():
+    """
+    Configure and return a Gemini GenerativeModel instance.
+    Tries configured model, then falls back to a text-capable model.
+    Returns None if GEMINI_API_KEY is not set or configuration fails.
+    """
+    try:
+        import google.generativeai as genai  # type: ignore
+    except Exception as e:
+        logging.getLogger(__name__).error(f"google-generativeai not installed: {e}")
+        return None
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        logging.getLogger(__name__).warning("GEMINI_API_KEY not set; recommendations will be empty.")
+        return None
+
+    try:
+        genai.configure(api_key=api_key)
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        try:
+            return genai.GenerativeModel(model_name=model_name)
+        except Exception as e1:
+            logging.getLogger(__name__).warning(f"Primary Gemini model '{model_name}' failed: {e1}. Trying fallback 'gemini-pro'.")
+            return genai.GenerativeModel(model_name="gemini-pro")
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Failed to configure Gemini: {e}", exc_info=True)
+        return None
+
+
+def generate_recommendations(context: Dict[str, Any], language: str = "en") -> list:
+    """
+    Generate farmer-friendly pest management recommendations using Gemini.
+
+    Args:
+        context: dict containing fields like:
+            - pest_type (deadheart/tiller)
+            - image_confidence, tabnet_prob, final_score, final_label
+            - detections (list)
+            - questionnaire (dict)
+            - location (optional: name/state/city)
+            - weather_risk (optional)
+        language: ISO language code to respond in (en/hi/ta/te)
+
+    Returns:
+        List of recommendation strings. Empty when disabled or on error.
+    """
+    logger = logging.getLogger(__name__)
+    model = _get_gemini_model()
+    if model is None:
+        return []
+
+    # Build a concise, safe prompt
+    pest_type = str(context.get("pest_type", "unknown"))
+    image_conf = context.get("image_confidence", 0.0)
+    tabnet_prob = context.get("tabnet_prob", 0.0)
+    final_score = context.get("final_score", 0.0)
+    final_label = context.get("final_label", "unknown")
+    detections = context.get("detections", [])
+    questionnaire = context.get("questionnaire", {})
+    location = context.get("location", {})
+    weather_risk = context.get("weather_risk", {})
+
+    # Summarize detections for prompt brevity
+    det_summary = []
+    try:
+        for d in detections[:5]:
+            kind = d.get("type", "detection")
+            score = d.get("score", 0.0)
+            det_summary.append(f"{kind}:{score:.2f}")
+    except Exception:
+        pass
+
+    prompt = f"""
+You are an agricultural advisory assistant. Provide practical, safe, step-by-step pest management guidance for sugarcane.
+Respond in language code: {language}.
+Audience: smallholder farmers in India.
+
+Context:
+- Pest type: {pest_type}
+- Fusion result: final_label={final_label}, final_score={final_score:.2f}
+- Image confidence: {image_conf:.2f}
+- Questionnaire probability: {tabnet_prob:.2f}
+- Detections summary (type:score): {', '.join(det_summary) if det_summary else 'none'}
+- Location (optional): {location}
+- Weather risk (optional): {weather_risk}
+- Questionnaire answers (yes/no): {questionnaire}
+
+Requirements:
+- Output 4 to 8 short bullet points.
+- Use clear, non-technical language suitable for farmers.
+- Include: immediate checks/monitoring, sanitation, cultural practices (field hygiene, irrigation, spacing), biological controls where appropriate, and when to consult local agri-extension.
+- Do NOT prescribe specific pesticide brands or doses. Keep guidance general and safe.
+- No placeholders. Do not include any analysis text outside the bullet points.
+
+Return ONLY the bullet points.
+""".strip()
+
+    try:
+        timeout_s = int(os.getenv("GEMINI_TIMEOUT", "15"))
+    except ValueError:
+        timeout_s = 15
+
+    try:
+        # Generate content (explicit generation config; pass contents as list for compatibility)
+        generation_config = {"temperature": 0.4, "max_output_tokens": 512}
+        response = model.generate_content([prompt], safety_settings=None, generation_config=generation_config, request_options={"timeout": timeout_s})
+        text = getattr(response, "text", "") or ""
+        if not text:
+            try:
+                # Fallback: assemble text from candidates/parts
+                parts = []
+                if hasattr(response, "candidates") and response.candidates:
+                    for c in response.candidates:
+                        if getattr(c, "content", None) and getattr(c.content, "parts", None):
+                            for p in c.content.parts:
+                                val = getattr(p, "text", None)
+                                if not val and isinstance(p, str):
+                                    val = p
+                                if val:
+                                    parts.append(val)
+                if parts:
+                    text = "\n".join(parts)
+            except Exception:
+                pass
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        # Normalize bullets
+        recs = []
+        import re
+        for ln in lines:
+            # Strip leading bullets
+            if ln.startswith(("-", "•", "*")):
+                ln = ln.lstrip("-•* ").strip()
+            # Remove leading numbering like "1.", "1)", "1 -"
+            ln = re.sub(r"^\s*\d+[\.\)]\s*", "", ln)
+            if ln:
+                recs.append(ln)
+        # Fallback: if model returned a paragraph, split by ". "
+        if not recs and text:
+            chunks = [c.strip() for c in text.replace("•", "-").split("-") if c.strip()]
+            if chunks:
+                recs = chunks[:8]
+        # Truncate to 8
+        return recs[:8]
+    except Exception as e:
+        logger.error(f"Gemini recommendation error: {e}", exc_info=True)
+        return []

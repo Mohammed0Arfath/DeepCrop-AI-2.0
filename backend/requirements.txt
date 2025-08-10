@@ -22,3 +22,4 @@ aiofiles==23.2.1
 httpx==0.28.1
 pytorch-tabnet==4.1.0
 requests==2.31.0
+google-generativeai>=0.7.2

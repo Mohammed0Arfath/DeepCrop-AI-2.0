@@ -91,7 +91,7 @@ const LocationSelector = ({ onLocationChange }) => {
         });
       }
     }
-  }, [selectedState, selectedCity, onLocationChange]);
+  }, [selectedState, selectedCity]);
 
   const handleGPSLocation = () => {
     if (!navigator.geolocation) {

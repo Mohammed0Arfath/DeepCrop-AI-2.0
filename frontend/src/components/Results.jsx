@@ -154,45 +154,52 @@ const Results = ({ results, diseaseType }) => {
         </div>
       )}
 
-      {/* Recommendations */}
-      <div className="recommendations">
-        <h3>💡 Recommendations</h3>
-        {isPositive ? (
-          <div className="recommendation-list positive-recommendations">
-            <div className="recommendation-item">
-              <strong>🚨 Immediate Action Required</strong>
-              <p>Pest detected with {confidenceLevel} confidence. Consider consulting with an agricultural expert.</p>
+      {/* Recommendations (Gemini-only) */}
+      {Array.isArray(results.recommendations) && results.recommendations.length > 0 && (
+        <div className="recommendations">
+          <h3 className="gemini-header">
+            💡 Gemini AI Recommendations
+            <span className="gemini-badge">Gemini</span>
+          </h3>
+          {results.recommendations_info && (
+            <div className="recommendation-meta">
+              <span>Model: {results.recommendations_info.model}</span>
+              <span>Language: {results.recommendations_info.language?.toUpperCase?.() || 'EN'}</span>
             </div>
-            <div className="recommendation-item">
-              <strong>🔍 Further Investigation</strong>
-              <p>Examine neighboring plants and check for similar symptoms in the field.</p>
-            </div>
-            <div className="recommendation-item">
-              <strong>📋 Pest Management Options</strong>
-              <p>Research appropriate pest management methods for {diseaseType} or consult agricultural extension services.</p>
-            </div>
-            <div className="recommendation-item">
-              <strong>📊 Monitor Progress</strong>
-              <p>Take regular photos and assessments to track pest pressure or treatment effectiveness.</p>
-            </div>
+          )}
+          <ul className="recommendation-list">
+            {results.recommendations.map((rec, idx) => (
+              <li key={idx} className="recommendation-item">
+                <span className="recommendation-icon">🌿</span>
+                {rec}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {(!results.recommendations || results.recommendations.length === 0) && results.recommendations_info && (
+        <div className="recommendations">
+          <h3 className="gemini-header">
+            💡 Gemini AI Recommendations
+            <span className="gemini-badge warning">No Output</span>
+          </h3>
+          <div className="recommendation-meta">
+            <span>Status: {results.recommendations_info.status}</span>
+            <span>Model: {results.recommendations_info.model}</span>
+            <span>Language: {results.recommendations_info.language?.toUpperCase?.() || 'EN'}</span>
           </div>
-        ) : (
-          <div className="recommendation-list negative-recommendations">
-            <div className="recommendation-item">
-              <strong>✅ Plant Appears Healthy</strong>
-              <p>No signs of {diseaseType} detected. Continue regular monitoring and maintenance.</p>
-            </div>
-            <div className="recommendation-item">
-              <strong>🛡️ Preventive Measures</strong>
-              <p>Maintain good field hygiene and proper irrigation to prevent future pests.</p>
-            </div>
-            <div className="recommendation-item">
-              <strong>📅 Regular Monitoring</strong>
-              <p>Continue periodic assessments, especially during vulnerable growth stages.</p>
-            </div>
-          </div>
-        )}
-      </div>
+          <ul className="recommendation-list">
+            <li className="recommendation-item">
+              <span className="recommendation-icon">ℹ️</span>
+              <span>
+                No Gemini recommendations were returned. Ensure the backend has internet access, dependencies installed,
+                and a valid Gemini API key, then analyze again.
+              </span>
+            </li>
+          </ul>
+        </div>
+      )}
 
       {/* Technical Details (Collapsible) */}
       <details className="technical-details">

@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 
 from .models import DiseasePredictor
-from .utils import setup_logging
+from .utils import setup_logging, generate_recommendations
 from .weather import weather_service
 from .disease_risk import disease_risk_assessor
 
@@ -213,7 +213,8 @@ async def get_specific_disease_risk(disease_type: str, lat: float, lon: float):
 @app.post("/predict/deadheart")
 async def predict_deadheart(
     image: UploadFile = File(..., description="Image file (JPEG/PNG)"),
-    questions: str = Form(..., description="JSON string containing questionnaire answers")
+    questions: str = Form(..., description="JSON string containing questionnaire answers"),
+    language: str = Form('en', description="UI language code (en/hi/ta/te)")
 ):
     """
     Predict dead heart disease from image and questionnaire data
@@ -232,6 +233,37 @@ async def predict_deadheart(
         
         # Process prediction
         result = await deadheart_predictor.predict(image, questions)
+
+        # Build context and get Gemini recommendations (Gemini-only, no static fallback)
+        try:
+            import json as _json
+            qdict = _json.loads(questions)
+        except Exception:
+            qdict = {}
+        context = {
+            "pest_type": "deadheart",
+            "image_confidence": result.get("image_confidence", 0.0),
+            "tabnet_prob": result.get("tabnet_prob", 0.0),
+            "final_score": result.get("final_score", 0.0),
+            "final_label": result.get("final_label", ""),
+            "detections": result.get("detections", []),
+            "questionnaire": qdict
+        }
+        recs = generate_recommendations(context, language)
+        result["recommendations"] = recs
+        # Attach debug info so the UI can inform when nothing is returned
+        status = "ok"
+        if not os.getenv("GEMINI_API_KEY"):
+            status = "missing_api_key"
+        elif not recs:
+            status = "empty"
+        result["recommendations_info"] = {
+            "count": len(recs),
+            "language": language,
+            "model": os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            "status": status
+        }
+
         return JSONResponse(content=result)
         
     except Exception as e:
@@ -242,7 +274,8 @@ async def predict_deadheart(
 @app.post("/predict/tiller")
 async def predict_tiller(
     image: UploadFile = File(..., description="Image file (JPEG/PNG)"),
-    questions: str = Form(..., description="JSON string containing questionnaire answers")
+    questions: str = Form(..., description="JSON string containing questionnaire answers"),
+    language: str = Form('en', description="UI language code (en/hi/ta/te)")
 ):
     """
     Predict tiller disease from image and questionnaire data
@@ -261,6 +294,37 @@ async def predict_tiller(
         
         # Process prediction
         result = await tiller_predictor.predict(image, questions)
+
+        # Build context and get Gemini recommendations (Gemini-only, no static fallback)
+        try:
+            import json as _json
+            qdict = _json.loads(questions)
+        except Exception:
+            qdict = {}
+        context = {
+            "pest_type": "tiller",
+            "image_confidence": result.get("image_confidence", 0.0),
+            "tabnet_prob": result.get("tabnet_prob", 0.0),
+            "final_score": result.get("final_score", 0.0),
+            "final_label": result.get("final_label", ""),
+            "detections": result.get("detections", []),
+            "questionnaire": qdict
+        }
+        recs = generate_recommendations(context, language)
+        result["recommendations"] = recs
+        # Attach debug info so the UI can inform when nothing is returned
+        status = "ok"
+        if not os.getenv("GEMINI_API_KEY"):
+            status = "missing_api_key"
+        elif not recs:
+            status = "empty"
+        result["recommendations_info"] = {
+            "count": len(recs),
+            "language": language,
+            "model": os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            "status": status
+        }
+
         return JSONResponse(content=result)
         
     except Exception as e:
