@@ -2,7 +2,7 @@
   "app": {
     "title": "Sugarcane Pest Detection",
     "subtitle": "AI-powered detection for dead heart and tiller pests",
-    "footer": "© 2024 Sugarcane Pest Detection System"
+    "footer": "© 2025 DeepCrop 1.0"
   },
   "diseases": {
     "deadheart": "Dead Heart",
