@@ -1,0 +1,246 @@
+.language-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.language-selector-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.language-selector-button:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.language-selector-button:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.language-name {
+  flex: 1;
+  text-align: left;
+  color: #333;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.language-option:hover {
+  background-color: #f8f9fa;
+}
+
+.language-option.active {
+  background-color: #e3f2fd;
+}
+
+.language-option .flag {
+  font-size: 18px;
+}
+
+.language-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.native-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.2;
+}
+
+.english-name {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.2;
+}
+
+.check-mark {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.language-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .language-selector-button {
+    min-width: 100px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .language-name {
+    display: none; /* Hide text on mobile, show only flag */
+  }
+  
+  .language-dropdown {
+    min-width: 200px;
+    right: 0;
+    left: auto;
+  }
+  
+  .language-option {
+    padding: 10px 12px;
+  }
+  
+  .native-name {
+    font-size: 13px;
+  }
+  
+  .english-name {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .language-selector-button {
+    min-width: 80px;
+    padding: 6px 8px;
+  }
+  
+  .flag {
+    font-size: 16px;
+  }
+  
+  .dropdown-arrow {
+    font-size: 10px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .language-selector-button {
+    border-color: #000;
+  }
+  
+  .language-selector-button:hover,
+  .language-selector-button:focus {
+    border-color: #0066cc;
+  }
+  
+  .language-dropdown {
+    border-color: #000;
+  }
+  
+  .language-option:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .language-option.active {
+    background-color: #cce7ff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .language-selector-button,
+  .dropdown-arrow,
+  .language-option {
+    transition: none;
+  }
+  
+  .language-dropdown {
+    animation: none;
+  }
+}
+
+/* Focus visible for better accessibility */
+.language-selector-button:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.language-option:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+}
+
+/* Support for different font families for different languages */
+.language-selector[data-lang="hi"] .native-name,
+.language-selector[data-lang="ta"] .native-name,
+.language-selector[data-lang="te"] .native-name {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Ensure proper text rendering for Indic scripts */
+.language-selector .native-name {
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}

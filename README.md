@@ -11,11 +11,13 @@ A full-stack AI-powered application for detecting sugarcane diseases using compu
 
 - **Dual Disease Detection**: Supports both Dead Heart (segmentation) and Tiller (detection) diseases
 - **Multi-Modal AI**: Combines image analysis (YOLOv8) with questionnaire data (TabNet)
+- **Weather-Based Risk Assessment**: Real-time disease risk analysis based on weather conditions
 - **Real-time Predictions**: Fast API responses with confidence scores
-- **Interactive Web Interface**: User-friendly React frontend
+- **Interactive Web Interface**: User-friendly React frontend with multi-language support
 - **Comprehensive Questionnaires**: 15 specific questions for each disease type
 - **Visual Results**: Overlay images showing detected areas with confidence scores
 - **Fusion Scoring**: Weighted combination of image and questionnaire predictions
+- **Location-Based Services**: GPS and manual location selection for Indian regions
 - **Docker Support**: Easy deployment with Docker containers
 
 ## 🏗️ Architecture

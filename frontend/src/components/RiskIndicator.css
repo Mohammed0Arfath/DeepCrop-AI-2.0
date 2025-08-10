@@ -1,0 +1,176 @@
+/* Risk Indicator Styles */
+
+.risk-indicator {
+  margin: 16px 0;
+}
+
+.risk-title {
+  margin: 0 0 16px 0;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.risk-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.risk-visual {
+  flex-shrink: 0;
+}
+
+.risk-circle {
+  width: 100px;
+  height: 100px;
+  border: 4px solid;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.risk-icon-large {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.risk-score-large {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.risk-info {
+  flex: 1;
+}
+
+.risk-level {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.risk-description {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.risk-progress {
+  margin-top: 12px;
+}
+
+.risk-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.risk-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.risk-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Compact Version */
+.risk-indicator.compact {
+  margin: 8px 0;
+}
+
+.risk-indicator.compact .risk-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.risk-indicator.compact .risk-icon {
+  font-size: 1.2rem;
+  margin-right: 8px;
+}
+
+.risk-indicator.compact .risk-label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.risk-indicator.compact .risk-score {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.risk-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.risk-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .risk-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .risk-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .risk-icon-large {
+    font-size: 1.5rem;
+  }
+
+  .risk-score-large {
+    font-size: 1rem;
+  }
+
+  .risk-level {
+    font-size: 1.1rem;
+  }
+
+  .risk-description {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .risk-circle {
+    width: 70px;
+    height: 70px;
+    border-width: 3px;
+  }
+
+  .risk-icon-large {
+    font-size: 1.3rem;
+  }
+
+  .risk-score-large {
+    font-size: 0.9rem;
+  }
+}

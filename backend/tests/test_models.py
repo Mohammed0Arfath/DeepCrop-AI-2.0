@@ -72,33 +72,30 @@ class TestDiseasePredictor:
         assert predictor.tabnet_model is None
     
     def test_convert_questions_to_features(self):
-        """Test question to feature conversion"""
+        """Test question to feature conversion (dead_heart, 15 yes/no features)"""
         predictor = DiseasePredictor(
-            disease_name="test_disease",
+            disease_name="dead_heart",
             yolo_model_path="nonexistent.pt",
             tabnet_model_path="nonexistent.joblib"
         )
         
-        # Test with yes/no answers
+        # Provide a subset of expected keys with yes/no (others default to 'no')
         questions = {
-            "question1": "yes",
-            "question2": "no",
-            "question3": "1",
-            "question4": "0",
-            "question5": "5.5"
+            "boreholes_plugged_excreta": "yes",           # first in order
+            "central_whorl_dry_withered": "no",           # second in order
+            "affected_shoots_come_off_easily": "yes"      # third in order
         }
         
         features = predictor._convert_questions_to_features(questions)
         
-        # Should convert to numerical values
-        assert features[0] == 1.0  # "yes"
-        assert features[1] == 0.0  # "no"
-        assert features[2] == 1.0  # "1"
-        assert features[3] == 0.0  # "0"
-        assert features[4] == 5.5  # "5.5"
+        # Verify structure and length
+        assert isinstance(features, list)
+        assert len(features) == 15  # dead_heart path uses 15 ordered features
         
-        # Should pad to expected length (30)
-        assert len(features) == 30
+        # Verify first few mapped values according to order in models.py
+        assert features[0] == 1.0   # boreholes_plugged_excreta -> "yes"
+        assert features[1] == 0.0   # central_whorl_dry_withered -> "no"
+        assert features[2] == 1.0   # affected_shoots_come_off_easily -> "yes"
     
     def test_fusion_scoring_method(self):
         """Test the fusion scoring method"""

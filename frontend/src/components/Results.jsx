@@ -19,8 +19,11 @@ const Results = ({ results, diseaseType }) => {
     metadata
   } = results;
 
+  // Normalize names so backend "dead_heart" matches frontend "deadheart"
+  const normalize = (s) => (s || '').toString().replace(/[_\s]/g, '').toLowerCase();
+
   // Determine result status
-  const isPositive = final_label === diseaseType;
+  const isPositive = normalize(final_label) === normalize(diseaseType);
   const confidenceLevel = final_score >= 0.8 ? 'high' : final_score >= 0.5 ? 'medium' : 'low';
 
   return (

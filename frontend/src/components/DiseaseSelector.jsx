@@ -5,18 +5,20 @@
  */
 
 import React from 'react';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const DiseaseSelector = ({ selectedDisease, onDiseaseSelect }) => {
+  const { t } = useTranslation();
   const diseases = [
     {
       id: 'deadheart',
-      name: 'Dead Heart',
+      name: t('diseases.deadheart'),
       description: 'A disease that affects the growing point of sugarcane, causing the central shoot to die.',
       icon: '💔'
     },
     {
       id: 'tiller',
-      name: 'Tiller Disease',
+      name: t('diseases.tiller'),
       description: 'A condition affecting the tillering process in sugarcane plants.',
       icon: '🌱'
     }
@@ -24,8 +26,8 @@ const DiseaseSelector = ({ selectedDisease, onDiseaseSelect }) => {
 
   return (
     <div className="disease-selector">
-      <h2>Select Disease Type</h2>
-      <p>Choose the type of disease you want to detect:</p>
+      <h2>{t('diseases.select')}</h2>
+      <p>{t('diseases.selectDescription')}</p>
       
       <div className="disease-options">
         {diseases.map((disease) => (

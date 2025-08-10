@@ -1,0 +1,247 @@
+/* Location Selector Styles */
+
+.location-selector {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.location-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.location-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.location-header p {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.location-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.location-option {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* GPS Button */
+.gps-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.gps-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #4CAF50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.gps-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gps-btn.active {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.gps-error {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.gps-error small {
+  color: #ffcdd2;
+  font-size: 0.8rem;
+}
+
+/* Manual Selection */
+.manual-selection {
+  width: 100%;
+}
+
+.selection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.switch-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.switch-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdowns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dropdown-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.location-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.9rem;
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease;
+}
+
+.location-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.location-select option {
+  background: #333;
+  color: white;
+  padding: 8px;
+}
+
+/* Selected Location Display */
+.selected-location {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 8px;
+}
+
+.location-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.location-icon {
+  font-size: 1.2rem;
+}
+
+.location-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.location-status {
+  font-size: 1rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .location-selector {
+    padding: 16px;
+  }
+
+  .dropdowns {
+    gap: 16px;
+  }
+
+  .dropdown-group {
+    gap: 8px;
+  }
+
+  .location-select {
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  .gps-btn {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .selection-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .switch-btn {
+    align-self: flex-end;
+  }
+
+  .location-display {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .location-name {
+    font-size: 0.85rem;
+  }
+}
+
+/* Loading Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner.small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}

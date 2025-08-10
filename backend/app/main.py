@@ -7,6 +7,11 @@ Main FastAPI application with endpoints for dead heart and tiller disease detect
 
 import os
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file at the very beginning
+load_dotenv()
+
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -14,6 +19,8 @@ import uvicorn
 
 from .models import DiseasePredictor
 from .utils import setup_logging
+from .weather import weather_service
+from .disease_risk import disease_risk_assessor
 
 # Setup logging
 setup_logging()
@@ -38,9 +45,9 @@ app.add_middleware(
 # Initialize disease predictors
 try:
     deadheart_predictor = DiseasePredictor(
-        disease_name="deadheart",
-        yolo_model_path=os.getenv("DEADHEART_YOLO_PATH", "models/yolov_deadheart.pt"),
-        tabnet_model_path=os.getenv("DEADHEART_TABNET_PATH", "models/tabnet_deadheart.joblib")
+        disease_name="dead_heart",
+        yolo_model_path=os.getenv("DEADHEART_YOLO_PATH", "backend/models/yolov_deadheart.pt"),
+        tabnet_model_path=os.getenv("DEADHEART_TABNET_PATH", "backend/models/tabnet_deadheart.joblib")
     )
     
     tiller_predictor = DiseasePredictor(
@@ -59,6 +66,148 @@ except Exception as e:
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Sugarcane Disease Detection API is running"}
+
+
+# Weather and Disease Risk Endpoints
+
+@app.get("/weather/current")
+async def get_current_weather(lat: float, lon: float):
+    """
+    Get current weather data for given coordinates
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        
+    Returns:
+        Current weather data
+    """
+    if not weather_service.api_key:
+        logger.warning("Attempted to access weather endpoint without API key.")
+        raise HTTPException(
+            status_code=503,
+            detail="Weather service is unavailable. Administrator must configure OPENWEATHER_API_KEY."
+        )
+    try:
+        weather_data = await weather_service.get_current_weather(lat, lon)
+        return JSONResponse(content=weather_data)
+    except HTTPException as e:
+        # Re-raise HTTPException to preserve status code and detail
+        raise e
+    except Exception as e:
+        logger.error(f"Error fetching weather data: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while fetching weather data.")
+
+
+@app.get("/weather/forecast")
+async def get_weather_forecast(lat: float, lon: float, days: int = 5):
+    """
+    Get weather forecast for given coordinates
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        days: Number of days for forecast (default: 5)
+        
+    Returns:
+        Weather forecast data
+    """
+    if not weather_service.api_key:
+        logger.warning("Attempted to access weather endpoint without API key.")
+        raise HTTPException(
+            status_code=503,
+            detail="Weather service is unavailable. Administrator must configure OPENWEATHER_API_KEY."
+        )
+    try:
+        if days < 1 or days > 5:
+            raise HTTPException(status_code=400, detail="Days must be between 1 and 5")
+        
+        forecast_data = await weather_service.get_weather_forecast(lat, lon, days)
+        return JSONResponse(content=forecast_data)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error fetching forecast data: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while fetching forecast data.")
+
+
+@app.get("/weather/disease-risk")
+async def get_disease_risk_assessment(lat: float, lon: float):
+    """
+    Get disease risk assessment based on current weather conditions
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        
+    Returns:
+        Disease risk assessment for both dead heart and tiller diseases
+    """
+    if not weather_service.api_key:
+        logger.warning("Attempted to access weather endpoint without API key.")
+        raise HTTPException(
+            status_code=503,
+            detail="Weather service is unavailable. Administrator must configure OPENWEATHER_API_KEY."
+        )
+    try:
+        # Get current weather data
+        weather_data = await weather_service.get_current_weather(lat, lon)
+        
+        # Calculate disease risk
+        risk_assessment = disease_risk_assessor.calculate_combined_risk(weather_data)
+        
+        # Add weather data to response
+        risk_assessment["weather_data"] = weather_data
+        
+        return JSONResponse(content=risk_assessment)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error calculating disease risk: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred during risk assessment.")
+
+
+@app.get("/weather/disease-risk/{disease_type}")
+async def get_specific_disease_risk(disease_type: str, lat: float, lon: float):
+    """
+    Get disease risk assessment for a specific disease type
+    
+    Args:
+        disease_type: Either 'deadheart' or 'tiller'
+        lat: Latitude
+        lon: Longitude
+        
+    Returns:
+        Disease risk assessment for the specified disease
+    """
+    if not weather_service.api_key:
+        logger.warning("Attempted to access weather endpoint without API key.")
+        raise HTTPException(
+            status_code=503,
+            detail="Weather service is unavailable. Administrator must configure OPENWEATHER_API_KEY."
+        )
+    try:
+        if disease_type not in ["deadheart", "tiller"]:
+            raise HTTPException(status_code=400, detail="Disease type must be 'deadheart' or 'tiller'")
+        
+        # Get current weather data
+        weather_data = await weather_service.get_current_weather(lat, lon)
+        
+        # Calculate specific disease risk
+        if disease_type == "deadheart":
+            risk_assessment = disease_risk_assessor.calculate_deadheart_risk(weather_data)
+        else:
+            risk_assessment = disease_risk_assessor.calculate_tiller_risk(weather_data)
+        
+        # Add weather data to response
+        risk_assessment["weather_data"] = weather_data
+        
+        return JSONResponse(content=risk_assessment)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error calculating {disease_type} risk: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred during risk assessment.")
 
 
 @app.post("/predict/deadheart")

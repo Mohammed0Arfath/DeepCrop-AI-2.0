@@ -53,6 +53,17 @@ class DiseasePredictor:
         
         # Load models
         self.yolo_model = self._load_yolo_model()
+        # Map class indices to names if available (Ultralytics provides model.names)
+        self.class_names = {}
+        try:
+            if self.yolo_model and hasattr(self.yolo_model, "names"):
+                names = self.yolo_model.names
+                if isinstance(names, dict):
+                    self.class_names = {int(k): str(v) for k, v in names.items()}
+                elif isinstance(names, list):
+                    self.class_names = {i: str(n) for i, n in enumerate(names)}
+        except Exception:
+            self.class_names = {}
         self.tabnet_model = self._load_tabnet_model()
         
         logger.info(f"Initialized {disease_name} predictor with weights: img={self.w_img}, tabnet={self.w_tab}")
@@ -69,19 +80,22 @@ class DiseasePredictor:
                 return None
                 
             model = YOLO(self.yolo_model_path)
-            logger.info(f"Loaded YOLO model from {self.yolo_model_path}")
-            
-            # Debug model structure for segmentation models
-            if self.disease_name == "deadheart":
-                logger.info(f"Dead heart model type: {type(model)}")
-                logger.info(f"Dead heart model attributes: {[attr for attr in dir(model) if not attr.startswith('_')]}")
-                
-                # Check if it's a segmentation model
-                if hasattr(model, 'task'):
-                    logger.info(f"Model task: {model.task}")
-                if hasattr(model, 'model'):
-                    logger.info(f"Inner model type: {type(model.model)}")
-            
+            size_info = None
+            try:
+                size_info = os.path.getsize(self.yolo_model_path)
+            except Exception:
+                size_info = None
+            # Log basic model info and classes if available
+            names = []
+            try:
+                raw_names = getattr(model, "names", {})
+                if isinstance(raw_names, dict):
+                    names = [str(v) for _, v in sorted(raw_names.items(), key=lambda x: int(x[0]))]
+                elif isinstance(raw_names, list):
+                    names = [str(n) for n in raw_names]
+            except Exception:
+                names = []
+            logger.info(f"Loaded YOLO model from {self.yolo_model_path} (size={size_info}) classes={names if names else 'unknown'}")
             return model
             
         except Exception as e:
@@ -164,9 +178,39 @@ class DiseasePredictor:
         if self.yolo_model is None:
             raise RuntimeError(f"YOLO model not loaded for {self.disease_name}")
         
-        # Run YOLO prediction
+        # Run YOLO prediction with error handling for corrupted segmentation models
         logger.info(f"Running YOLO prediction for {self.disease_name}")
-        results = self.yolo_model.predict(source=image_path, verbose=False)
+        conf = float(os.getenv("YOLO_CONF", "0.25"))
+        iou = float(os.getenv("YOLO_IOU", "0.45"))
+        imgsz = int(os.getenv("IMG_SIZE", "640"))
+        device = os.getenv("YOLO_DEVICE", "").strip() or None
+        
+        try:
+            results = self.yolo_model.predict(source=image_path, imgsz=imgsz, conf=conf, iou=iou, device=device, verbose=False)
+        except AttributeError as e:
+            if "'Segment' object has no attribute 'detect'" in str(e):
+                logger.error(f"Segmentation model corruption detected: {e}")
+                logger.info("Attempting to reload model with detection head...")
+                
+                # Try to reload as detection model
+                try:
+                    from ultralytics import YOLO
+                    # Force reload the model
+                    self.yolo_model = YOLO(self.yolo_model_path)
+                    # Try prediction again
+                    results = self.yolo_model.predict(source=image_path, imgsz=imgsz, conf=conf, iou=iou, device=device, verbose=False)
+                    logger.info("Successfully reloaded and predicted with model")
+                except Exception as reload_error:
+                    logger.error(f"Model reload failed: {reload_error}")
+                    # Use TabNet-only prediction as fallback
+                    logger.info("Using TabNet-only prediction as fallback")
+                    return self._tabnet_only_prediction(image)
+            else:
+                raise e
+        except Exception as e:
+            logger.error(f"Unexpected error during YOLO prediction: {e}")
+            # Use TabNet-only prediction as fallback
+            return self._tabnet_only_prediction(image)
         
         # Extract detections
         detections = []
@@ -190,13 +234,17 @@ class DiseasePredictor:
                 masks_xy = result.masks.xy if hasattr(result.masks, 'xy') else None
                 logger.info(f"Masks XY available: {masks_xy is not None}")
                 
-                # Get confidence scores from boxes
+                # Get boxes, classes, and confidence scores if available
                 if hasattr(result, 'boxes') and result.boxes is not None:
+                    boxes_np = result.boxes.xyxy.cpu().numpy()
                     scores = result.boxes.conf.cpu().numpy()
-                    logger.info(f"Found {len(scores)} confidence scores: {scores}")
+                    classes_np = result.boxes.cls.cpu().numpy() if hasattr(result.boxes, 'cls') else np.zeros(len(scores))
+                    logger.info(f"Found {len(scores)} instances with scores: {scores}")
                 else:
-                    scores = [0.8] * len(masks_data)
-                    logger.info("No boxes found, using default confidence")
+                    boxes_np = np.zeros((len(masks_data), 4))
+                    classes_np = np.zeros(len(masks_data))
+                    scores = np.array([0.8] * len(masks_data))
+                    logger.info("No boxes found, using default confidence and empty boxes")
                 
                 # Process each mask
                 for i, (mask, score) in enumerate(zip(masks_data, scores)):
@@ -214,11 +262,26 @@ class DiseasePredictor:
                             polygon = polygon_data
                         logger.info(f"Polygon for mask {i}: {len(polygon) if polygon else 0} points")
                     
+                    # Derive bounding box for this mask
+                    if i < len(boxes_np):
+                        x1, y1, x2, y2 = boxes_np[i]
+                    else:
+                        ys, xs = np.where(mask > 0.5)
+                        if len(xs) > 0 and len(ys) > 0:
+                            x1, y1, x2, y2 = np.min(xs), np.min(ys), np.max(xs), np.max(ys)
+                        else:
+                            x1, y1, x2, y2 = 0, 0, 0, 0
+                    box_list = [int(x1), int(y1), int(x2), int(y2)]
+                    # Class label
+                    cls_idx = int(classes_np[i]) if i < len(classes_np) else 0
+                    label_name = self.class_names.get(cls_idx, self.disease_name) if hasattr(self, "class_names") else self.disease_name
+                    
                     detection = {
                         "mask": mask.tolist(),  # Binary mask
                         "polygon": polygon,     # Polygon coordinates
+                        "box": box_list,
                         "score": float(score),
-                        "class": self.disease_name,
+                        "class": label_name,
                         "type": "segmentation"
                     }
                     detections.append(detection)
@@ -236,10 +299,11 @@ class DiseasePredictor:
                 logger.info(f"Found {len(boxes)} bounding boxes with scores: {scores}")
                 
                 for box, score, cls in zip(boxes, scores, classes):
+                    label_name = self.class_names.get(int(cls), self.disease_name) if hasattr(self, "class_names") else self.disease_name
                     detection = {
                         "box": [int(box[0]), int(box[1]), int(box[2]), int(box[3])],
                         "score": float(score),
-                        "class": self.disease_name,
+                        "class": label_name,
                         "type": "detection"
                     }
                     detections.append(detection)

@@ -754,25 +754,79 @@ body {
 }
 
 @media (max-width: 480px) {
+.app-header {
+  background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+  color: white;
+  padding: 2rem 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.header-text {
+  flex: 1;
+  text-align: left;
+}
+
+.header-text h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Mobile responsive header */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .header-text {
+    text-align: center;
+  }
+  
+  .header-text h1 {
+    font-size: 2rem;
+  }
+  
+  .header-text p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
   .app-header {
     padding: 1.5rem 1rem;
   }
   
-  .app-header h1 {
+  .header-text h1 {
     font-size: 1.8rem;
   }
   
-  .section {
-    padding: 1rem;
+  .header-text p {
+    font-size: 0.9rem;
   }
-  
-  .disease-option {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .disease-icon {
-    margin-right: 0;
-    margin-bottom: 0.5rem;
-  }
+}
 }

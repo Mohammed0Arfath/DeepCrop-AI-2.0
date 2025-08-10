@@ -1,0 +1,232 @@
+{
+  "app": {
+    "title": "Sugarcane Disease Detection",
+    "subtitle": "AI-powered detection for dead heart and tiller diseases",
+    "footer": "© 2024 Sugarcane Disease Detection System"
+  },
+  "diseases": {
+    "deadheart": "Dead Heart",
+    "tiller": "Tiller",
+    "select": "Select Disease Type",
+    "selectDescription": "Choose the type of disease you want to diagnose"
+  },
+  "buttons": {
+    "submit": "Analyze Disease",
+    "reset": "Reset",
+    "previous": "Previous",
+    "next": "Next",
+    "upload": "Upload Image",
+    "analyzing": "Analyzing...",
+    "close": "Close"
+  },
+  "imageUpload": {
+    "title": "Upload Plant Image",
+    "description": "Upload a clear image of the affected sugarcane plant",
+    "dragDrop": "Drag and drop an image here, or click to select",
+    "supportedFormats": "Supported formats: JPG, PNG (Max: 10MB)",
+    "preview": "Image Preview"
+  },
+  "questionnaire": {
+    "title": "Symptom Assessment",
+    "progress": "Question {current} of {total}",
+    "completed": "Questionnaire Complete!",
+    "processing": "All questions have been answered. Processing your responses...",
+    "clickToEnlarge": "Click to enlarge",
+    "imageNotAvailable": "Image not available - will be added soon",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "questions": {
+    "deadheart": {
+      "boreholes_plugged_excreta": {
+        "text": "Are there boreholes plugged with excreta visible on the plant?",
+        "description": "Look for small holes in the stem that are filled with insect waste material"
+      },
+      "central_whorl_dry_withered": {
+        "text": "Is the central whorl dry and withered?",
+        "description": "Check if the innermost leaves at the center of the plant are dried up"
+      },
+      "affected_shoots_come_off_easily": {
+        "text": "Do affected shoots come off easily when pulled?",
+        "description": "Gently pull the central shoot to see if it detaches without resistance"
+      },
+      "affected_shoots_wilting_drying": {
+        "text": "Are affected shoots showing signs of wilting and drying?",
+        "description": "Look for shoots that are losing their green color and becoming dry"
+      },
+      "caterpillars_destroying_shoots": {
+        "text": "Are there caterpillars visible destroying the shoots?",
+        "description": "Check for the presence of larvae feeding on the plant shoots"
+      },
+      "reduction_millable_canes": {
+        "text": "Is there a noticeable reduction in millable canes?",
+        "description": "Compare with healthy plants to see if cane production is reduced"
+      },
+      "bore_holes_base_ground_level": {
+        "text": "Are there bore holes visible at the base near ground level?",
+        "description": "Examine the stem base close to soil level for entry holes"
+      },
+      "dirty_white_larvae_violet_stripes": {
+        "text": "Can you see dirty white larvae with violet stripes?",
+        "description": "Look for caterpillars with distinctive white body and purple markings"
+      },
+      "central_shoot_comes_out_easily": {
+        "text": "Does the central shoot come out easily when pulled?",
+        "description": "Test if the main growing point can be removed without force"
+      },
+      "small_holes_stem_near_ground": {
+        "text": "Are there small holes in the stem near the ground?",
+        "description": "Check the lower portion of the stem for insect entry points"
+      },
+      "crop_early_growth_phase": {
+        "text": "Is the crop in its early growth phase (1-3 months)?",
+        "description": "Consider the age of the sugarcane crop when symptoms appeared"
+      },
+      "leaves_drying_tip_margins": {
+        "text": "Are leaves drying from tip and margins?",
+        "description": "Look for browning that starts at leaf tips and edges"
+      },
+      "plant_yellow_wilted": {
+        "text": "Is the plant showing yellowing and wilting symptoms?",
+        "description": "Check for overall plant stress with yellow coloration"
+      },
+      "rotten_central_shoot_foul_odor": {
+        "text": "Is there a rotten central shoot with foul odor?",
+        "description": "Smell for any unpleasant odor from the decaying central growing point"
+      },
+      "rotten_straw_colored_dead_heart": {
+        "text": "Is there a rotten, straw-colored dead heart visible?",
+        "description": "Look for the characteristic dried, yellowish-brown central shoot"
+      }
+    },
+    "tiller": {
+      "affected_setts_spreading": {
+        "text": "Are affected setts spreading the symptoms to nearby plants?",
+        "description": "Check if the problem is spreading from infected planting material"
+      },
+      "plants_stunted_slow_growth": {
+        "text": "Are plants showing stunted and slow growth?",
+        "description": "Compare plant height and vigor with healthy plants"
+      },
+      "honey_dew_sooty_mould": {
+        "text": "Is there honey dew and sooty mould present?",
+        "description": "Look for sticky secretions and black fungal growth on leaves"
+      },
+      "nodal_regions_infested": {
+        "text": "Are nodal regions heavily infested with insects?",
+        "description": "Check the joints of the stem for high insect populations"
+      },
+      "tillers_white_yellow": {
+        "text": "Are tillers showing white to yellow coloration?",
+        "description": "Look for side shoots that have lost their green color"
+      },
+      "high_aphid_population": {
+        "text": "Is there a high population of aphids visible?",
+        "description": "Check for clusters of small, soft-bodied insects on plants"
+      },
+      "gaps_early_drying": {
+        "text": "Are there gaps in the field due to early plant drying?",
+        "description": "Look for missing plants or dead spots in the field"
+      },
+      "cane_stunted_reduced_internodes": {
+        "text": "Are canes stunted with reduced internodes?",
+        "description": "Check if stem segments between nodes are shorter than normal"
+      },
+      "no_millable_cane_formation": {
+        "text": "Is there no millable cane formation?",
+        "description": "Assess if plants are failing to produce harvestable canes"
+      },
+      "profuse_lateral_buds": {
+        "text": "Are there profuse lateral buds sprouting?",
+        "description": "Look for excessive side bud development along the stem"
+      },
+      "woolly_matter_deposition": {
+        "text": "Is there woolly matter deposition on plants?",
+        "description": "Check for white, cotton-like material on plant surfaces"
+      },
+      "gradual_yellowing_drying": {
+        "text": "Is there gradual yellowing and drying of plants?",
+        "description": "Look for progressive color change from green to yellow to brown"
+      },
+      "yellowing_from_tip_margins": {
+        "text": "Is yellowing starting from leaf tips and margins?",
+        "description": "Check if discoloration begins at leaf edges and spreads inward"
+      },
+      "profuse_tillering_3_4_months": {
+        "text": "Is there profuse tillering at 3-4 months after planting?",
+        "description": "Count the number of shoots per plant at this growth stage"
+      },
+      "ratoon_crop_present": {
+        "text": "Is this a ratoon crop (regrowth after harvest)?",
+        "description": "Determine if this is the first crop or regrowth from previous harvest"
+      }
+    }
+  },
+  "results": {
+    "title": "Analysis Results",
+    "prediction": "Prediction",
+    "confidence": "Confidence",
+    "imageAnalysis": "Image Analysis",
+    "questionnaireAnalysis": "Questionnaire Analysis",
+    "finalScore": "Final Score",
+    "detections": "Detections",
+    "noDetections": "No detections found",
+    "detected": "Detected",
+    "notDetected": "Not Detected",
+    "recommendation": "Recommendation",
+    "overlay": "Analysis Overlay"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "imageRequired": "Please upload an image",
+    "questionnaireRequired": "Please complete the questionnaire",
+    "diseaseRequired": "Please select a disease type",
+    "uploadFailed": "Image upload failed",
+    "predictionFailed": "Prediction failed. Please try again.",
+    "networkError": "Network error. Please check your connection."
+  },
+  "loading": {
+    "analyzing": "Analyzing your image and responses...",
+    "uploading": "Uploading image...",
+    "processing": "Processing data...",
+    "please_wait": "Please wait..."
+  },
+  "weather": {
+    "title": "Weather & Disease Risk",
+    "subtitle": "Current conditions and disease risk assessment",
+    "loading": "Fetching weather data...",
+    "retry": "Retry",
+    "selectLocation": "Select Location",
+    "locationDesc": "Choose your location to get accurate weather data",
+    "selectLocationDesc": "Choose your location to get weather-based disease risk assessment",
+    "useCurrentLocation": "Use Current Location",
+    "gettingLocation": "Getting location...",
+    "selectManually": "Select Manually",
+    "switchToManual": "Switch to Manual",
+    "currentLocation": "Current Location",
+    "state": "State",
+    "city": "City",
+    "selectState": "Select State",
+    "selectCity": "Select City",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "rainfall": "Rainfall (3h)",
+    "pressure": "Pressure",
+    "lastUpdated": "Last updated",
+    "diseaseRisk": "Disease Risk Assessment",
+    "overallRisk": "Overall Risk",
+    "riskFactors": "Risk Factors",
+    "recommendations": "Recommendations",
+    "risk": {
+      "low": "Low Risk",
+      "medium": "Medium Risk",
+      "high": "High Risk",
+      "critical": "Critical Risk",
+      "lowDesc": "Conditions are favorable",
+      "mediumDesc": "Monitor plants closely",
+      "highDesc": "Take preventive action",
+      "criticalDesc": "Immediate action required"
+    }
+  }
+}

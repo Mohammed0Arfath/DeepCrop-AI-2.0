@@ -7,10 +7,12 @@ Utility functions for the sugarcane disease detection API
 import logging
 import os
 from typing import Dict, Any
+from dotenv import load_dotenv
 
 
 def setup_logging():
     """Setup logging configuration"""
+    load_dotenv()
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     
     logging.basicConfig(

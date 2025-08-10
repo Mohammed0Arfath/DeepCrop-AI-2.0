@@ -5,13 +5,19 @@
  */
 
 import React, { useState } from 'react';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { useTranslation } from './contexts/LanguageContext';
+import LanguageSelector from './components/LanguageSelector';
 import DiseaseSelector from './components/DiseaseSelector';
 import ImageUpload from './components/ImageUpload';
-import Questionnaire from './components/Questionnaire';
+import EnhancedQuestionnaire from './components/EnhancedQuestionnaire';
 import Results from './components/Results';
+import WeatherDashboard from './components/WeatherDashboard';
 import './App.css';
 
-function App() {
+// Main App Component (wrapped with translations)
+const AppContent = () => {
+  const { t } = useTranslation();
   // State management
   const [selectedDisease, setSelectedDisease] = useState('');
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -96,11 +102,23 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🌾 Sugarcane Disease Detection</h1>
-        <p>AI-powered detection for dead heart and tiller diseases</p>
+        <div className="header-content">
+          <div className="header-text">
+            <h1>🌾 {t('app.title')}</h1>
+            <p>{t('app.subtitle')}</p>
+          </div>
+          <div className="header-controls">
+            <LanguageSelector />
+          </div>
+        </div>
       </header>
 
       <main className="app-main">
+        {/* Weather Dashboard */}
+        <section className="section">
+          <WeatherDashboard />
+        </section>
+
         {/* Disease Selection */}
         <section className="section">
           <DiseaseSelector 
@@ -120,9 +138,10 @@ function App() {
             </section>
 
             <section className="section">
-              <Questionnaire 
+              <EnhancedQuestionnaire 
                 diseaseType={selectedDisease}
-                onDataChange={handleQuestionnaireChange}
+                onAnswersChange={handleQuestionnaireChange}
+                onComplete={handleQuestionnaireChange}
               />
             </section>
 
@@ -134,7 +153,7 @@ function App() {
                   onClick={handleSubmit}
                   disabled={loading || !uploadedImage || Object.keys(questionnaireData).length === 0}
                 >
-                  {loading ? 'Analyzing...' : 'Analyze Disease'}
+                  {loading ? t('buttons.analyzing') : t('buttons.submit')}
                 </button>
                 
                 <button 
@@ -142,7 +161,7 @@ function App() {
                   onClick={handleReset}
                   disabled={loading}
                 >
-                  Reset
+                  {t('buttons.reset')}
                 </button>
               </div>
             </section>
@@ -153,7 +172,7 @@ function App() {
         {error && (
           <section className="section">
             <div className="error-message">
-              <h3>❌ Error</h3>
+              <h3>❌ {t('errors.generic')}</h3>
               <p>{error}</p>
             </div>
           </section>
@@ -168,9 +187,18 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 Sugarcane Disease Detection System</p>
+        <p>{t('app.footer')}</p>
       </footer>
     </div>
+  );
+};
+
+// Main App Component with Language Provider
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 
