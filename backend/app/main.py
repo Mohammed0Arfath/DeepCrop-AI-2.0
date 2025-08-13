@@ -40,7 +40,9 @@ app.add_middleware(
         "http://localhost:3000", 
         "http://localhost:5173",
         "http://frontend:5173",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "https://sugarcane-disease-detection-hn6m.onrender.com"  # ✅ Render frontend
+
     ],  # React dev servers and Docker container
     allow_credentials=True,
     allow_methods=["*"],
