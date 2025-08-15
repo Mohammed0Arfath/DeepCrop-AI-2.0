@@ -1,0 +1,76 @@
+2025-08-15 16:29:52,324 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_deadheart.pt
+2025-08-15 16:29:52,324 - app.models - INFO - Dead heart model type: <class 'ultralytics.models.yolo.model.YOLO'>
+2025-08-15 16:29:52,324 - app.models - INFO - Dead heart model attributes: ['T_destination', 'add_callback', 'add_module', 'apply', 'benchmark', 'bfloat16', 'buffers', 'call_super_init', 'callbacks', 'cfg', 'children', 'ckpt', 'ckpt_path', 'clear_callback', 'compile', 'cpu', 'cuda', 'device', 'double', 'dump_patches', 'embed', 'eval', 'export', 'extra_repr', 'float', 'forward', 'fuse', 'get_buffer', 'get_extra_state', 'get_parameter', 'get_submodule', 'half', 'info', 'ipu', 'is_hub_model', 'is_triton_model', 'load', 'load_state_dict', 'metrics', 'model', 'model_name', 'modules', 'mtia', 'named_buffers', 'named_children', 'named_modules', 'named_parameters', 'names', 'overrides', 'parameters', 'predict', 'predictor', 'register_backward_hook', 'register_buffer', 'register_forward_hook', 'register_forward_pre_hook', 'register_full_backward_hook', 'register_full_backward_pre_hook', 'register_load_state_dict_post_hook', 'register_load_state_dict_pre_hook', 'register_module', 'register_parameter', 'register_state_dict_post_hook', 'register_state_dict_pre_hook', 'requires_grad_', 'reset_callbacks', 'reset_weights', 'save', 'session', 'set_extra_state', 'set_submodule', 'share_memory', 'state_dict', 'task', 'task_map', 'to', 'to_empty', 'track', 'train', 'trainer', 'transforms', 'tune', 'type', 'val', 'xpu', 'zero_grad']
+2025-08-15 16:29:52,324 - app.models - INFO - Model task: segment
+2025-08-15 16:29:52,328 - app.models - INFO - Inner model type: <class 'ultralytics.nn.tasks.SegmentationModel'>
+2025-08-15 16:30:02,251 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_deadheart.joblib
+2025-08-15 16:30:02,251 - app.models - INFO - Initialized deadheart predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:30:02,367 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_tiller.pt
+2025-08-15 16:30:02,421 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_tiller.joblib
+2025-08-15 16:30:02,421 - app.models - INFO - Initialized tiller predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:30:02,421 - app.main - INFO - Disease predictors initialized successfully
+2025-08-15 16:31:09,112 - httpx - INFO - HTTP Request: GET https://api.openweathermap.org/data/2.5/weather?lat=26.8467&lon=80.9462&appid=1ea3a842272c34af40b89cb5daf9ad59&units=metric "HTTP/1.1 200 OK"
+2025-08-15 16:31:09,121 - app.weather - INFO - Fetched and cached weather data for 26.8467, 80.9462
+2025-08-15 16:31:09,129 - app.weather - INFO - Returning cached weather data for 26.8467, 80.9462
+2025-08-15 16:31:09,881 - httpx - INFO - HTTP Request: GET https://api.openweathermap.org/data/2.5/forecast?lat=26.8467&lon=80.9462&cnt=40&appid=1ea3a842272c34af40b89cb5daf9ad59&units=metric "HTTP/1.1 200 OK"
+2025-08-15 16:31:09,881 - app.weather - INFO - Fetched and cached forecast data for 26.8467, 80.9462
+2025-08-15 16:32:15,360 - app.models - INFO - Running YOLO prediction for deadheart
+2025-08-15 16:32:25,991 - app.models - INFO - Processing result type: <class 'ultralytics.engine.results.Results'>
+2025-08-15 16:32:25,991 - app.models - INFO - Result attributes: ['boxes', 'cpu', 'cuda', 'keypoints', 'masks', 'names', 'new', 'numpy', 'obb', 'orig_img', 'orig_shape', 'path', 'plot', 'probs', 'save', 'save_crop', 'save_dir', 'save_txt', 'show', 'speed', 'summary', 'to', 'to_csv', 'to_df', 'to_html', 'to_json', 'to_sql', 'to_xml', 'tojson', 'update', 'verbose']
+2025-08-15 16:32:25,991 - app.models - INFO - Found segmentation masks
+2025-08-15 16:32:25,991 - app.models - INFO - Masks type: <class 'ultralytics.engine.results.Masks'>
+2025-08-15 16:32:25,993 - app.models - INFO - Masks attributes: ['cpu', 'cuda', 'data', 'numpy', 'orig_shape', 'shape', 'to', 'xy', 'xyn']
+2025-08-15 16:32:25,993 - app.models - INFO - Masks data shape: (1, 640, 640)
+2025-08-15 16:32:25,997 - app.models - INFO - Masks XY available: True
+2025-08-15 16:32:25,997 - app.models - INFO - Found 1 confidence scores: [     0.8456]
+2025-08-15 16:32:26,001 - app.models - INFO - Processing mask 0: shape=(640, 640), score=0.845597505569458
+2025-08-15 16:32:26,001 - app.models - INFO - Polygon for mask 0: 268 points
+2025-08-15 16:32:26,001 - app.models - INFO - Successfully processed 1 segmentation detections
+2025-08-15 16:32:26,001 - app.models - INFO - Total detections: 1, Max confidence: 0.845597505569458
+2025-08-15 16:37:32,098 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_deadheart.pt
+2025-08-15 16:37:32,099 - app.models - INFO - Dead heart model type: <class 'ultralytics.models.yolo.model.YOLO'>
+2025-08-15 16:37:32,099 - app.models - INFO - Dead heart model attributes: ['T_destination', 'add_callback', 'add_module', 'apply', 'benchmark', 'bfloat16', 'buffers', 'call_super_init', 'callbacks', 'cfg', 'children', 'ckpt', 'ckpt_path', 'clear_callback', 'compile', 'cpu', 'cuda', 'device', 'double', 'dump_patches', 'embed', 'eval', 'export', 'extra_repr', 'float', 'forward', 'fuse', 'get_buffer', 'get_extra_state', 'get_parameter', 'get_submodule', 'half', 'info', 'ipu', 'is_hub_model', 'is_triton_model', 'load', 'load_state_dict', 'metrics', 'model', 'model_name', 'modules', 'mtia', 'named_buffers', 'named_children', 'named_modules', 'named_parameters', 'names', 'overrides', 'parameters', 'predict', 'predictor', 'register_backward_hook', 'register_buffer', 'register_forward_hook', 'register_forward_pre_hook', 'register_full_backward_hook', 'register_full_backward_pre_hook', 'register_load_state_dict_post_hook', 'register_load_state_dict_pre_hook', 'register_module', 'register_parameter', 'register_state_dict_post_hook', 'register_state_dict_pre_hook', 'requires_grad_', 'reset_callbacks', 'reset_weights', 'save', 'session', 'set_extra_state', 'set_submodule', 'share_memory', 'state_dict', 'task', 'task_map', 'to', 'to_empty', 'track', 'train', 'trainer', 'transforms', 'tune', 'type', 'val', 'xpu', 'zero_grad']
+2025-08-15 16:37:32,100 - app.models - INFO - Model task: segment
+2025-08-15 16:37:32,100 - app.models - INFO - Inner model type: <class 'ultralytics.nn.tasks.SegmentationModel'>
+2025-08-15 16:37:32,851 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_deadheart.joblib
+2025-08-15 16:37:32,851 - app.models - INFO - Initialized deadheart predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:37:32,915 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_tiller.pt
+2025-08-15 16:37:32,959 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_tiller.joblib
+2025-08-15 16:37:32,959 - app.models - INFO - Initialized tiller predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:37:32,959 - app.main - INFO - Disease predictors initialized successfully
+2025-08-15 16:38:57,943 - httpx - INFO - HTTP Request: GET https://api.openweathermap.org/data/2.5/weather?lat=12.929413&lon=79.333122&appid=1ea3a842272c34af40b89cb5daf9ad59&units=metric "HTTP/1.1 200 OK"
+2025-08-15 16:38:57,943 - app.weather - INFO - Fetched and cached weather data for 12.929413, 79.333122
+2025-08-15 16:38:57,954 - app.weather - INFO - Returning cached weather data for 12.929413, 79.333122
+2025-08-15 16:38:58,861 - httpx - INFO - HTTP Request: GET https://api.openweathermap.org/data/2.5/forecast?lat=12.929413&lon=79.333122&cnt=40&appid=1ea3a842272c34af40b89cb5daf9ad59&units=metric "HTTP/1.1 200 OK"
+2025-08-15 16:38:58,864 - app.weather - INFO - Fetched and cached forecast data for 12.929413, 79.333122
+2025-08-15 16:40:12,870 - app.models - INFO - Running YOLO prediction for tiller
+2025-08-15 16:40:15,713 - app.models - INFO - Processing result type: <class 'ultralytics.engine.results.Results'>
+2025-08-15 16:40:15,713 - app.models - INFO - Result attributes: ['boxes', 'cpu', 'cuda', 'keypoints', 'masks', 'names', 'new', 'numpy', 'obb', 'orig_img', 'orig_shape', 'path', 'plot', 'probs', 'save', 'save_crop', 'save_dir', 'save_txt', 'show', 'speed', 'summary', 'to', 'to_csv', 'to_df', 'to_html', 'to_json', 'to_sql', 'to_xml', 'tojson', 'update', 'verbose']
+2025-08-15 16:40:15,713 - app.models - INFO - Processing bounding boxes
+2025-08-15 16:40:15,713 - app.models - INFO - Found 2 bounding boxes with scores: [    0.72006     0.57423]
+2025-08-15 16:40:15,718 - app.models - INFO - Successfully processed 2 bounding box detections
+2025-08-15 16:40:15,718 - app.models - INFO - Total detections: 2, Max confidence: 0.7200605273246765
+2025-08-15 16:41:53,463 - app.models - INFO - Running YOLO prediction for deadheart
+2025-08-15 16:41:53,888 - app.models - INFO - Processing result type: <class 'ultralytics.engine.results.Results'>
+2025-08-15 16:41:53,889 - app.models - INFO - Result attributes: ['boxes', 'cpu', 'cuda', 'keypoints', 'masks', 'names', 'new', 'numpy', 'obb', 'orig_img', 'orig_shape', 'path', 'plot', 'probs', 'save', 'save_crop', 'save_dir', 'save_txt', 'show', 'speed', 'summary', 'to', 'to_csv', 'to_df', 'to_html', 'to_json', 'to_sql', 'to_xml', 'tojson', 'update', 'verbose']
+2025-08-15 16:41:53,889 - app.models - INFO - Found segmentation masks
+2025-08-15 16:41:53,889 - app.models - INFO - Masks type: <class 'ultralytics.engine.results.Masks'>
+2025-08-15 16:41:53,889 - app.models - INFO - Masks attributes: ['cpu', 'cuda', 'data', 'numpy', 'orig_shape', 'shape', 'to', 'xy', 'xyn']
+2025-08-15 16:41:53,890 - app.models - INFO - Masks data shape: (1, 640, 640)
+2025-08-15 16:41:53,892 - app.models - INFO - Masks XY available: True
+2025-08-15 16:41:53,892 - app.models - INFO - Found 1 confidence scores: [    0.79445]
+2025-08-15 16:41:53,892 - app.models - INFO - Processing mask 0: shape=(640, 640), score=0.7944496273994446
+2025-08-15 16:41:53,893 - app.models - INFO - Polygon for mask 0: 156 points
+2025-08-15 16:41:53,903 - app.models - INFO - Successfully processed 1 segmentation detections
+2025-08-15 16:41:53,903 - app.models - INFO - Total detections: 1, Max confidence: 0.7944496273994446
+2025-08-15 16:45:40,871 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_deadheart.pt
+2025-08-15 16:45:40,872 - app.models - INFO - Dead heart model type: <class 'ultralytics.models.yolo.model.YOLO'>
+2025-08-15 16:45:40,872 - app.models - INFO - Dead heart model attributes: ['T_destination', 'add_callback', 'add_module', 'apply', 'benchmark', 'bfloat16', 'buffers', 'call_super_init', 'callbacks', 'cfg', 'children', 'ckpt', 'ckpt_path', 'clear_callback', 'compile', 'cpu', 'cuda', 'device', 'double', 'dump_patches', 'embed', 'eval', 'export', 'extra_repr', 'float', 'forward', 'fuse', 'get_buffer', 'get_extra_state', 'get_parameter', 'get_submodule', 'half', 'info', 'ipu', 'is_hub_model', 'is_triton_model', 'load', 'load_state_dict', 'metrics', 'model', 'model_name', 'modules', 'mtia', 'named_buffers', 'named_children', 'named_modules', 'named_parameters', 'names', 'overrides', 'parameters', 'predict', 'predictor', 'register_backward_hook', 'register_buffer', 'register_forward_hook', 'register_forward_pre_hook', 'register_full_backward_hook', 'register_full_backward_pre_hook', 'register_load_state_dict_post_hook', 'register_load_state_dict_pre_hook', 'register_module', 'register_parameter', 'register_state_dict_post_hook', 'register_state_dict_pre_hook', 'requires_grad_', 'reset_callbacks', 'reset_weights', 'save', 'session', 'set_extra_state', 'set_submodule', 'share_memory', 'state_dict', 'task', 'task_map', 'to', 'to_empty', 'track', 'train', 'trainer', 'transforms', 'tune', 'type', 'val', 'xpu', 'zero_grad']
+2025-08-15 16:45:40,873 - app.models - INFO - Model task: segment
+2025-08-15 16:45:40,873 - app.models - INFO - Inner model type: <class 'ultralytics.nn.tasks.SegmentationModel'>
+2025-08-15 16:45:41,877 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_deadheart.joblib
+2025-08-15 16:45:41,877 - app.models - INFO - Initialized deadheart predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:45:41,936 - app.models - INFO - Loaded YOLO model from C:\Users\moham\sugarcane_disease_detection\backend\models\yolov_tiller.pt
+2025-08-15 16:45:41,978 - app.models - INFO - Loaded TabNet model from C:\Users\moham\sugarcane_disease_detection\backend\models\tabnet_tiller.joblib
+2025-08-15 16:45:41,978 - app.models - INFO - Initialized tiller predictor with weights: img=0.6, tabnet=0.4
+2025-08-15 16:45:41,978 - app.main - INFO - Disease predictors initialized successfully
