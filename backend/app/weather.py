@@ -1,5 +1,5 @@
 """
-MIT License
+MIT Licenses
 
 Weather service for fetching weather data from OpenWeatherMap API
 and providing weather-based insights for sugarcane disease detection.
